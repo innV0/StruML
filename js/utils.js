@@ -256,6 +256,33 @@ window.StruMLApp.Utils.findItemByTitle = (items, title) => {
 };
 
 /**
+ * Find the parent of an item and its index within the parent's items array.
+ * @param {Array} items - The array of items to search (usually document.items).
+ * @param {string} itemId - The ID of the item whose parent is to be found.
+ * @returns {Object|null} An object { parent: parentItem, index: itemIndex } or null if not found or root.
+ */
+window.StruMLApp.Utils.findParentItem = (items, itemId) => {
+  if (!items || !itemId) return null;
+
+  for (const parentCandidate of items) {
+    if (parentCandidate.items && parentCandidate.items.length > 0) {
+      const itemIndex = parentCandidate.items.findIndex(child => child.id === itemId);
+      if (itemIndex !== -1) {
+        return { parent: parentCandidate, index: itemIndex };
+      }
+      // Recursively search in children's items
+      const foundInChild = window.StruMLApp.Utils.findParentItem(parentCandidate.items, itemId);
+      if (foundInChild) {
+        return foundInChild;
+      }
+    }
+  }
+  // If the loop finishes, it means the itemId was not found as a child in the current list of items.
+  // It could be a root item, or not exist. If it's a root item, it has no parent.
+  return null; 
+};
+
+/**
  * Create a new empty item
  * @param {string} parentId - Optional parent ID
  * @returns {Object} A new item object
