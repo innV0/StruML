@@ -1,0 +1,119 @@
+{
+  "title": "StruML doc",
+  "items": [
+    {
+      "title": "🧭Guides",
+      "parentItem": "",
+      "content": "A high-level overview or instruction manual that explains the overall process or purpose.\nExample: “Guide to recording a meeting…”",
+      "tags": "",
+      "weight": "",
+      "summary": "A high-level overview or instruction manual that explains the overall process or purpose.\nExample: “Guide to recording a meeting…”",
+      "description": "A Guide serves as a structured document that provides orientation and context for executing a process. It includes explanations, objectives, and references to other elements such as workflows, tools, and roles. It ensures that users understand not just what to do, but why and how each component fits into the whole.",
+      "example": "    {\r\n      \"title\": \"🧭Guide\",\r\n      \"content\": \"Guide to recording a meeting, transcribing it with Whisper, summarizing it with ChatGPT, and sending the minutes.\",\r\n      \"tags\": \"type::guide,document>>Guide\",\r\n      \"items\": [\r\n        {\r\n          \"title\": \"🛠️Work\",\r\n          \"content\": \"End‑to‑end workflow for managing the meeting.\",\r\n          \"tags\": \"class::item type,type::sequence,process>>workflow\",\r\n          \"items\": [\r\n            {\r\n              \"title\": \"Record meeting notes\",\r\n              \"content\": \"Process by which a meeting attendee generates a summary of the meeting.\\n\\nThis process involves a meeting attendee documenting the key points discussed, decisions made, and actions assigned. Recording these notes serves as the basis for creating detailed and accurate formal minutes, facilitating follow‑up on agreements and responsibilities.\\n\\n**Steps:**\\n1.  **Note‑Taking:** Record the topics discussed, decisions made, and actions assigned during the meeting.\\n2.  **Identify Key Points:** Distinguish the most important and relevant points of the discussion.\\n3.  **Clarify Decisions:** Ensure that the decisions made are clearly defined and understood.\\n4.  **Assign Actions:** Record the actions assigned to each participant, including deadlines and expectations.\\n5.  **Organize Notes:** Organize the notes logically and coherently to facilitate later review and use.\\n\\n**Input:** Direct observations during the meeting.\\n**Output:** Detailed and organized meeting notes.\",\r\n              \"tags\": \"\",\r\n              \"items\": [\r\n                {\r\n                  \"title\": \"Record meeting audio\",\r\n                  \"content\": \"Record the meeting using the phone’s recorder app.\\n\\nCapture the conversation and details of the meeting by recording audio with the phone’s recorder app. This record will serve as a reference for transcription and the later creation of minutes.\\n\\n**Steps:**\\n1.  **Start Recording:** Open the recorder app on the phone and start recording at the beginning of the meeting.\\n2.  **Check Audio Quality:** Ensure that the device’s microphone is working correctly and that the audio quality is suitable for later transcription.\\n3.  **Monitor Recording:** Periodically verify that the recording continues without interruptions throughout the meeting.\\n4.  **Stop Recording:** Stop the recording at the end of the meeting and save the audio file in an accessible format (e.g., MP3, WAV).\\n5.  **Store the File:** Save the audio file in a secure, easily accessible location for later transcription.\\n\\n**Input:** Meeting in progress.\\n**Output:** Audio file of the meeting (Audio Recording).\",\r\n                  \"tags\": \"role>>Meeting Recorder, output>>Audio Recording\",\r\n                  \"items\": []\r\n                },\r\n                {\r\n                  \"title\": \"Transcribe meeting audio\",\r\n                  \"content\": \"Convert the audio to text with Whisper.\\n\\nConvert the meeting audio to text using Whisper or another transcription service.\\n\\nThis process consists of transforming the meeting’s audio recording into a text document, which facilitates review, analysis, and the creation of minutes. Transcription can be performed with automatic speech‑recognition tools such as Whisper or through manual transcription services.\\n\\n**Steps:**\\n1.  **Prepare the Audio:** Ensure the audio file is in a compatible format (e.g., MP3, WAV).\\n2.  **Select Transcription Tool:** Choose the appropriate transcription tool (Whisper, Google Speech‑to‑Text, or a professional transcription service).\\n3.  **Upload the Audio:** Upload the audio file to the selected platform or tool.\\n4.  **Start Transcription:** Start the transcription process and monitor its progress.\\n5.  **Review and Edit:** Review the generated transcription to correct errors, improve clarity, and ensure terminological accuracy.\\n6.  **Final Format:** Format the transcribed text to facilitate reading and later use.\\n\\n**Input:** Audio file of the meeting (Audio Recording).\\n**Output:** Full meeting transcript (Transcript) in text format (TXT, DOCX, etc.).\",\r\n                  \"tags\": \"role>>Transcriber, input>>Audio Recording, output>>Transcript\",\r\n                  \"items\": []\r\n                },\r\n                {\r\n                  \"title\": \"Summarize the meeting\",\r\n                  \"content\": \"Upload the transcript to ChatGPT and generate a summary.\\n\\nSynthesize the key points of the meeting transcript into a concise, clear summary.\\n\\nThis step involves taking the complete meeting transcript generated by Whisper or a similar transcription service and using ChatGPT to identify and extract the most important points, decisions made, and agreed‑upon actions. The goal is to produce a summary that efficiently captures the essence of the meeting, allowing participants and other stakeholders to quickly understand the topics discussed and the results obtained.\\n\\n**Steps:**\\n1. **Upload Transcript:** Upload the transcript file (TXT, DOCX, etc.) to ChatGPT.\\n2. **Instructions to ChatGPT:** Instruct ChatGPT to generate a meeting summary, specifying the desired length (e.g., \\\"Summarize in 200 words\\\").\\n3. **Review the Summary:** Read the summary generated by ChatGPT to verify its accuracy and completeness.\\n4. **Adjust (Optional):** If the summary does not meet expectations, provide feedback to ChatGPT to refine it or make manual adjustments.\\n5. **Final Format:** Format the summary to facilitate reading and understanding.\\n\\n**Input:** Meeting transcript (Transcript).\\n**Output:** Meeting summary (Meeting Summary).\",\r\n                  \"tags\": \"role>>Summarizer, input>>Transcript, output>>Meeting Summary\",\r\n                  \"items\": []\r\n                },\r\n                {\r\n                  \"title\": \"Write meeting minutes\",\r\n                  \"content\": \"Draft the minutes based on the summary.\\n\\nPrepare the formal minutes document from the meeting summary, detailing the decisions made, topics discussed, and follow‑up actions. Ensure clarity and accuracy for distribution to participants.\\n\\n**Steps:**\\n1.  **Review the Summary:** Analyze the meeting summary provided by the Summarizer.\\n2.  **Identify Key Decisions:** Extract the most important decisions made during the meeting.\\n3.  **Detail Discussed Topics:** Expand on the information about the topics discussed, including relevant viewpoints.\\n4.  **Define Follow‑Up Actions:** Specify the actions to be taken, assigning responsible parties and setting deadlines.\\n5.  **Draft Minutes:** Write the minutes document using clear, concise, and professional language.\\n6.  **Review and Edit:** Review the document to correct grammatical, spelling, and style errors.\\n7.  **Final Format:** Format the document to facilitate reading and understanding (e.g., use headings, lists, etc.).\\n\\n**Input:** Meeting summary (Meeting Summary).\\n**Output:** Minutes document (Minutes Document) ready for distribution.\",\r\n                  \"tags\": \"role>>Minutes Writer, input>>Meeting Summary, output>>Minutes Document\",\r\n                  \"items\": []\r\n                },\r\n                {\r\n                  \"title\": \"Send meeting minutes\",\r\n                  \"content\": \"Send the minutes to meeting participants.\\n\\nDistribute the final minutes to all participants and stakeholders.\\n\\nThis crucial step ensures that all meeting attendees and other relevant individuals are informed about the topics discussed, decisions made, and actions agreed upon. Timely and efficient distribution of the minutes facilitates follow‑up on responsibilities and meeting deadlines.\\n\\n**Steps:**\\n1.  **Prepare the Document:** Ensure the minutes document (Minutes Document) is complete, reviewed, and in the appropriate format (PDF, DOCX).\\n2.  **Gather Email Addresses:** Obtain the email addresses of all meeting participants and other stakeholders.\\n3.  **Draft the Email:** Write a clear, concise email that includes:\\n    *   A cordial greeting.\\n    *   A brief introduction explaining the purpose of the email (sending the meeting minutes).\\n    *   A link to or attachment of the minutes document.\\n    *   Clear instructions on how to access and review the document.\\n    *   A request for confirmation of receipt (optional).\\n    *   Contact information for questions or comments.\\n4.  **Send the Email:** Send the email to all recipients using an email client (Email Client).\\n5.  **Confirm Sending:** Verify that the email was sent successfully and save a record of the sending (Sent Minutes).\\n6.  **Follow‑Up (Optional):** Follow up with recipients to confirm receipt and ensure they have reviewed the minutes.\\n\\n**Input:** Minutes document (Minutes Document).\\n**Output:** Confirmation of minutes sent (Sent Minutes).\",\r\n                  \"tags\": \"role>>Sender, input>>Minutes Document, output>>Sent Minutes\",\r\n                  \"items\": []\r\n                }\r\n              ]\r\n            }\r\n          ]\r\n        },\r\n        {\r\n          \"title\": \"📦Objects\",\r\n          \"content\": \"Artifacts generated or used.\",\r\n          \"tags\": \"class::item type,type::tree,catalog>>Artifacts\",\r\n          \"items\": [\r\n            {\r\n              \"title\": \"Audio Recording\",\r\n              \"content\": \"Audio file (WAV/M4A) with the meeting recording.\",\r\n              \"tags\": \"type>>file, format>>audio\",\r\n              \"items\": []\r\n            },\r\n            {\r\n              \"title\": \"Transcript\",\r\n              \"content\": \"Full textual transcript of the audio.\",\r\n              \"tags\": \"type>>text\",\r\n              \"items\": []\r\n            },\r\n            {\r\n              \"title\": \"Meeting Summary\",\r\n              \"content\": \"Summary of the key points discussed.\",\r\n              \"tags\": \"type>>text, alias>>Summary\",\r\n              \"items\": []\r\n            },\r\n            {\r\n              \"title\": \"Minutes Document\",\r\n              \"content\": \"Minutes document (PDF or DOCX) ready for send.\",\r\n              \"tags\": \"type>>document\",\r\n              \"items\": []\r\n            },\r\n            {\r\n              \"title\": \"Sent Minutes\",\r\n              \"content\": \"Confirmation or record of minutes sent.\",\r\n              \"tags\": \"type>>status\",\r\n              \"items\": []\r\n            }\r\n          ]\r\n        },\r\n        {\r\n          \"title\": \"🧰Tools\",\r\n          \"content\": \"Tools used at each stage.\",\r\n          \"tags\": \"class::item type,type::tree,catalog>>Tools\",\r\n          \"items\": [\r\n            {\r\n              \"title\": \"Mobile Recorder App\",\r\n              \"content\": \"Native recording application on smartphone.\",\r\n              \"tags\": \"tool>>software\",\r\n              \"items\": []\r\n            },\r\n            {\r\n              \"title\": \"OpenAI Whisper\",\r\n              \"content\": \"AI model for automatic transcription.\",\r\n              \"tags\": \"tool>>software\",\r\n              \"items\": []\r\n            },\r\n            {\r\n              \"title\": \"ChatGPT\",\r\n              \"content\": \"AI used to generate the summary and assist in drafting minutes.\",\r\n              \"tags\": \"tool>>software\",\r\n              \"items\": []\r\n            },\r\n            {\r\n              \"title\": \"Word Processor\",\r\n              \"content\": \"Word processor (MS Word, Google Docs).\",\r\n              \"tags\": \"tool>>software\",\r\n              \"items\": []\r\n            },\r\n            {\r\n              \"title\": \"Email Client\",\r\n              \"content\": \"Email client to send minutes.\",\r\n              \"tags\": \"tool>>software\",\r\n              \"items\": []\r\n            }\r\n          ]\r\n        },\r\n        {\r\n          \"title\": \"💼Roles\",\r\n          \"content\": \"Roles involved in the workflow.\",\r\n          \"tags\": \"class::item type,type::tree,catalog>>Roles\",\r\n          \"items\": [\r\n            {\r\n              \"title\": \"Meeting Organizer\",\r\n              \"content\": \"\",\r\n              \"tags\": \"\",\r\n              \"items\": [\r\n                {\r\n                  \"title\": \"Meeting Recorder\",\r\n                  \"content\": \"Person who records the meeting audio with a phone.\",\r\n                  \"tags\": \"role>>Meeting Recorder\",\r\n                  \"items\": []\r\n                },\r\n                {\r\n                  \"title\": \"Transcriber\",\r\n                  \"content\": \"Whisper service or operator who performs the transcription.\",\r\n                  \"tags\": \"role>>Transcriber\",\r\n                  \"items\": []\r\n                },\r\n                {\r\n                  \"title\": \"Summarizer\",\r\n                  \"content\": \"ChatGPT or person who synthesizes the information into a summary.\",\r\n                  \"tags\": \"role>>Summarizer\",\r\n                  \"items\": []\r\n                },\r\n                {\r\n                  \"title\": \"Sender\",\r\n                  \"content\": \"Responsible for distributing the minutes to the recipient.\",\r\n                  \"tags\": \"role>>Sender\",\r\n                  \"items\": []\r\n                },\r\n                {\r\n                  \"title\": \"Minutes Writer\",\r\n                  \"content\": \"Responsible for drafting the minutes document.\",\r\n                  \"tags\": \"role>>Minutes Writer\",\r\n                  \"items\": []\r\n                }\r\n              ]\r\n            }\r\n          ]\r\n        }        {\r\n          \"title\": \"💼Roles\",\r\n          \"content\": \"Roles involved in the workflow.\",\r\n          \"tags\": \"class::item type,type::tree,catalog>>Roles\",\r\n          \"items\": [\r\n            {\r\n              \"title\": \"Meeting Organizer\",\r\n              \"content\": \"\",\r\n              \"tags\": \"\",\r\n              \"items\": [\r\n                {\r\n                  \"title\": \"Meeting Recorder\",\r\n                  \"content\": \"Person who records the meeting audio with a phone.\",\r\n                  \"tags\": \"role>>Meeting Recorder\",\r\n                  \"items\": []\r\n                },\r\n                {\r\n                  \"title\": \"Transcriber\",\r\n                  \"content\": \"Whisper service or operator who performs the transcription.\",\r\n                  \"tags\": \"role>>Transcriber\",\r\n                  \"items\": []\r\n                },\r\n                {\r\n                  \"title\": \"Summarizer\",\r\n                  \"content\": \"ChatGPT or person who synthesizes the information into a summary.\",\r\n                  \"tags\": \"role>>Summarizer\",\r\n                  \"items\": []\r\n                },\r\n                {\r\n                  \"title\": \"Sender\",\r\n                  \"content\": \"Responsible for distributing the minutes to the recipient.\",\r\n                  \"tags\": \"role>>Sender\",\r\n                  \"items\": []\r\n                },\r\n                {\r\n                  \"title\": \"Minutes Writer\",\r\n                  \"content\": \"Responsible for drafting the minutes document.\",\r\n                  \"tags\": \"role>>Minutes Writer\",\r\n                  \"items\": []\r\n                }\r\n              ]\r\n            }\r\n          ]\r\n        }",
+      "methodologies": "",
+      "prompts": "",
+      "guide": "",
+      "items": [
+        {
+          "title": "🛠️Work",
+          "parentItem": "🧭Guides",
+          "content": "A sequence of actions or steps designed to achieve a specific result.\nExample: “Record meeting notes” or “Summarize the meeting”.",
+          "tags": "",
+          "weight": "",
+          "summary": "A sequence of actions or steps designed to achieve a specific result.\nExample: “Record meeting notes” or “Summarize the meeting”.",
+          "description": "A Work item represents a complete or partial process, typically composed of multiple steps and sub-processes. It defines the logic of how a task is accomplished from beginning to end, including inputs, outputs, and sequencing. It ensures consistency, repeatability, and clarity in execution.",
+          "example": "",
+          "methodologies": "",
+          "prompts": "",
+          "guide": "",
+          "items": []
+        },
+        {
+          "title": "📦Objects",
+          "parentItem": "🧭Guides",
+          "content": "Items, data or documents created, transformed, or used during the work.\nExample: Audio Recording, Transcript, Meeting Summary.",
+          "tags": "",
+          "weight": "",
+          "summary": "Items, data or documents created, transformed, or used during the work.\nExample: Audio Recording, Transcript, Meeting Summary.",
+          "description": "Objects represent tangible or digital outputs of the work process. They are key artifacts that flow through the system—serving as evidence of actions taken, inputs to other steps, or final deliverables. Each object has a format, a purpose, and may be the result of multiple transformations.",
+          "example": "",
+          "methodologies": "",
+          "prompts": "",
+          "guide": "",
+          "items": []
+        },
+        {
+          "title": "🧰Tools",
+          "parentItem": "🧭Guides",
+          "content": "Software or devices used to carry out specific tasks within the procedure.\nExample: Mobile Recorder App, Whisper, ChatGPT.",
+          "tags": "",
+          "weight": "",
+          "summary": "Software or devices used to carry out specific tasks within the procedure.\nExample: Mobile Recorder App, Whisper, ChatGPT.",
+          "description": "Tools are technological or manual resources that enable, support, or automate activities in the workflow. They are typically associated with one or more steps and are chosen based on compatibility with required inputs and outputs. Tools can include apps, platforms, or physical instruments.",
+          "example": "",
+          "methodologies": "",
+          "prompts": "",
+          "guide": "",
+          "items": []
+        },
+        {
+          "title": "💼Roles",
+          "parentItem": "🧭Guides",
+          "content": "Defined responsibilities involved in the work.\nExample: Meeting Recorder, Transcriber, Summarizer.\n\n",
+          "tags": "",
+          "weight": "",
+          "summary": "Defined responsibilities involved in the work.\nExample: Meeting Recorder, Transcriber, Summarizer.\n\n",
+          "description": "Roles define the operational function performed by individuals or systems within the process. A role is not tied to a person, but to a function or responsibility, and can be assigned to multiple actors. Roles are essential for delegation, clarity of ownership, and division of labor.",
+          "example": "",
+          "methodologies": "",
+          "prompts": "",
+          "guide": "",
+          "items": []
+        }
+      ]
+    },
+    {
+      "title": "🏢Organization",
+      "parentItem": "",
+      "content": "The company, institution, or team within which the workflow is executed or governed.\t",
+      "tags": "",
+      "weight": "",
+      "summary": "The company, institution, or team within which the workflow is executed or governed.\t",
+      "description": "An Organization provides the structural and legal context in which people, positions, tools, and processes operate. It defines the boundaries of responsibility, governance, and ownership of the workflow. Organizations allocate resources, enforce standards, and determine strategic goals. Examples include companies, departments, institutions, or cross-functional teams.",
+      "example": "",
+      "methodologies": "",
+      "prompts": "",
+      "guide": "",
+      "items": [
+        {
+          "title": "👤Positions",
+          "parentItem": "🏢Organization",
+          "content": "Set of roles within an organization or workflow that group together specific responsibilities, tasks, and required competencies and represent a recurring function necessary to execute one or more parts of a process.",
+          "tags": "",
+          "weight": "",
+          "summary": "Set of roles within an organization or workflow that group together specific responsibilities, tasks, and required competencies and represent a recurring function necessary to execute one or more parts of a process.",
+          "description": "Positions aggregate roles into formal job profiles that are stable and repeatable within an organization. Each position combines responsibilities, competencies, and expectations into a unit that can be assigned to individuals. Positions often determine access to tools, tasks, and decision rights.",
+          "example": "",
+          "methodologies": "",
+          "prompts": "",
+          "guide": "",
+          "items": []
+        },
+        {
+          "title": "👷‍♂️People",
+          "parentItem": "🏢Organization",
+          "content": "Specific individuals or example users who perform one or more roles in the process.\nExample: “Lucas Cervera – Meeting Recorder and Minutes Writer”.",
+          "tags": "",
+          "weight": "",
+          "summary": "Specific individuals or example users who perform one or more roles in the process.\nExample: “Lucas Cervera – Meeting Recorder and Minutes Writer”.",
+          "description": "People are the real-world actors—named individuals or personas—who participate in a process by performing one or more roles. Identifying people helps illustrate the application of roles in practice, demonstrate responsibility, and personalize the process through real examples.",
+          "example": "",
+          "methodologies": "",
+          "prompts": "",
+          "guide": "",
+          "items": []
+        }
+      ]
+    }
+  ]
+}

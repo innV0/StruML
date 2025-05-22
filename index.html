@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StruML - Structured Modeling Language</title>
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- React via CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel for JSX support -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  
+  <!-- Marked for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+  <!-- DOMPurify for sanitizing HTML -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.5/purify.min.js"></script>
+  
+  <!-- Handlebars for templating -->
+  <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.min.js"></script>
+  
+  <!-- Mermaid for flowchart diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  
+  <!-- EasyMDE for WYSIWYG Markdown editing -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+  
+  <!-- Tagify for tag input -->
+  <link href="https://unpkg.com/@yaireo/tagify/dist/tagify.css" rel="stylesheet">
+  <script src="https://unpkg.com/@yaireo/tagify/dist/tagify.min.js"></script>
+  <script src="https://unpkg.com/@yaireo/dragsort/dist/dragsort.min.js"></script>
+  
+  <!-- Drag and drop libraries -->
+  <script src="https://unpkg.com/@dnd-kit/core/dist/core.umd.js"></script>
+  <script src="https://unpkg.com/@dnd-kit/sortable/dist/sortable.umd.js"></script>
+  <script src="https://unpkg.com/@dnd-kit/utilities/dist/utilities.umd.js"></script>
+  
+  <style>
+    .tag {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      margin-right: 0.25rem;
+      margin-bottom: 0.25rem;
+      background-color: #e5e7eb;
+    }
+    .tree-item.selected {
+      background-color: rgba(59, 130, 246, 0.1);
+      border-left: 3px solid #3b82f6;
+    }
+    .markdown-content h1 {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .markdown-content h2 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-top: 0.8rem;
+      margin-bottom: 0.4rem;
+    }
+    .markdown-content h3 {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-top: 0.6rem;
+      margin-bottom: 0.3rem;
+    }
+    .markdown-content p {
+      margin-bottom: 0.75rem;
+    }
+    .markdown-content ul, .markdown-content ol {
+      margin-left: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .markdown-content ul {
+      list-style-type: disc;
+    }
+    .markdown-content ol {
+      list-style-type: decimal;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+  <div id="root" class="min-h-screen"></div>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="./css/styles.css">
+  
+  <!-- Configuration -->
+  <script src="./config.js" type="text/javascript"></script>
+  
+  <!-- Utility functions -->
+  <script src="./js/utils.js" type="text/javascript"></script>
+  <script src="./js/dnd-utils.js" type="text/javascript"></script>
+  
+  <!-- Store (must be loaded before components) -->
+  <script src="./js/store.js" type="text/babel"></script>
+  
+  <!-- Component files -->
+  <script src="./js/components/TagEditor.js" type="text/babel"></script>
+  <script src="./js/components/TagSelector.js" type="text/babel"></script>
+  <script src="./js/components/TagFilter.js" type="text/babel"></script>
+  <script src="./js/components/RelationsView.js" type="text/babel"></script>
+  <script src="./js/components/MarkdownEditor.js" type="text/babel"></script>
+  <script src="./js/components/ChatbotPanel.js" type="text/babel"></script>
+  <script src="./js/components/MatrixVisualization.js" type="text/babel"></script>
+  <script src="./js/components/MatrixEditor.js" type="text/babel"></script>
+  <script src="./js/components/DraggableItemBadge.js" type="text/babel"></script>
+  <script src="./js/components/ItemCard.js" type="text/babel"></script>
+  <script src="./js/components/TreeItemDnd.js" type="text/babel"></script>
+  <script src="./js/components/SortableTreeItem.js" type="text/babel"></script>
+  <script src="./js/components/ItemViewMermaid.js" type="text/babel"></script>
+  <script src="./js/components.js" type="text/babel"></script>
+  
+  <!-- Main application file -->
+  <script src="./js/app.js" type="text/babel"></script>
+</body>
+</html>

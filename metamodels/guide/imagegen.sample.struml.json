@@ -1,0 +1,269 @@
+{
+  "title": "StruML doc",
+  "tags": "metamodel::guide,metamodel_version::0.1.0,doc_version::0.1.0",
+  "items": [
+    {
+      "id": "ma6dqm5jc131x",
+      "title": "Guide",
+      "content": "Una guía completa para generar imágenes con Leonardo.ai, detallando posiciones, objetos, herramientas y el flujo de trabajo end‑to‑end.",
+      "tags": "document>>Guide",
+      "items": [
+        {
+          "id": "ma76pyxzb3g2x",
+          "title": "🛠️Work",
+          "content": "Trabajo a llevar a cabo para generar la imagen.",
+          "tags": "process>>workflow",
+          "items": [
+            {
+              "id": "ma772kzglcqta",
+              "title": "Model Selection",
+              "content": "Elegir y justificar el modelo de Leonardo.ai (p. ej. Stable Diffusion, Leonardo Diffusion).",
+              "tags": "position>>Prompt Engineer, output>>Model Choice",
+              "items": []
+            },
+            {
+              "id": "ma772kzgrvbs8",
+              "title": "Prompt Creation",
+              "content": "Crear el prompt inicial con palabras clave, estilo artístico y descripción de escena.",
+              "tags": "position>>Prompt Engineer, output>>Prompt",
+              "items": [
+                {
+                  "id": "ma774qo1w3g2o",
+                  "title": "Keyword Selection",
+                  "content": "Seleccionar palabras clave descriptivas y sinónimos.",
+                  "tags": "position>>Prompt Engineer",
+                  "items": []
+                },
+                {
+                  "id": "ma774qo15yay2",
+                  "title": "Artistic Style Definition",
+                  "content": "Definir el estilo artístico deseado y artistas de referencia.",
+                  "tags": "position>>Prompt Engineer",
+                  "items": []
+                },
+                {
+                  "id": "ma774qo1mxpeu",
+                  "title": "Scene Description",
+                  "content": "Describir composición, iluminación, colores y atmósfera.",
+                  "tags": "position>>Prompt Engineer",
+                  "items": []
+                },
+                {
+                  "id": "ma774qo12zow4",
+                  "title": "Prompt Experimentation",
+                  "content": "Iterar con diferentes combinaciones de palabras y estilos.",
+                  "tags": "position>>Prompt Engineer",
+                  "items": []
+                }
+              ]
+            },
+            {
+              "id": "ma772kzgdo6qo",
+              "title": "Iteration & Refinement",
+              "content": "Refinar el prompt según resultados iniciales y realimentación.",
+              "tags": "position>>Prompt Engineer, input>>Prompt, output>>Prompt‑Refined",
+              "items": []
+            },
+            {
+              "id": "ma772kzg7w6hi",
+              "title": "Quality Criteria",
+              "content": "Definir criterios visuales y conceptuales para aceptar la imagen.",
+              "tags": "position>>Image Curator, input>>Imagen, output>>Quality Report",
+              "items": []
+            },
+            {
+              "id": "ma772kzgnva3m",
+              "title": "Post‑processing",
+              "content": "Aplicar retoques finales (color, nitidez) en software externo.",
+              "tags": "position>>Post‑Processing Artist, input>>Imagen, output>>Imagen Final",
+              "items": []
+            }
+          ]
+        },
+
+        {
+          "id": "mb2h4d7vty5c1",
+          "title": "💼Positions",
+          "content": "Roles involucrados en el flujo.",
+          "tags": "catalog>>Roles",
+          "items": [
+            {
+              "id": "ma776y3z6ds0f",
+              "title": "Prompt Engineer",
+              "content": "Diseña y refina prompts efectivos.",
+              "tags": "role>>Prompt Engineer",
+              "items": []
+            },
+            {
+              "id": "ma776y3zx8f1w",
+              "title": "Image Curator",
+              "content": "Evalúa coherencia y calidad visual de las imágenes.",
+              "tags": "role>>Image Curator",
+              "items": []
+            },
+            {
+              "id": "ma776y3ze7med",
+              "title": "Post‑Processing Artist",
+              "content": "Realiza retoques y mejoras en la imagen final.",
+              "tags": "role>>Post‑Processing Artist",
+              "items": []
+            },
+            {
+              "id": "ma776y3z4e86s",
+              "title": "Project Manager",
+              "content": "Planifica y supervisa el proyecto de generación de imágenes.",
+              "tags": "role>>Project Manager",
+              "items": []
+            }
+          ]
+        },
+
+        {
+          "id": "mb3j7y8uxv2b9",
+          "title": "📦Objects",
+          "content": "Artefactos generados o consumidos en el proceso.",
+          "tags": "catalog>>Artifacts",
+          "items": [
+            {
+              "id": "ma779iabw0aup",
+              "title": "Prompt",
+              "content": "Prompt textual inicial con sujeto, entorno, estilo y parámetros.",
+              "tags": "type>>text, alias>>Prompt",
+              "items": []
+            },
+            {
+              "id": "obj_prompt_ref",
+              "title": "Prompt‑Refined",
+              "content": "Versión iterada y optimizada del prompt.",
+              "tags": "type>>text",
+              "items": []
+            },
+            {
+              "id": "obj_model_choice",
+              "title": "Model Choice",
+              "content": "Documento que justifica el modelo seleccionado.",
+              "tags": "type>>decision",
+              "items": []
+            },
+            {
+              "id": "obj_quality_report",
+              "title": "Quality Report",
+              "content": "Informe de evaluación de calidad y coherencia.",
+              "tags": "type>>report",
+              "items": []
+            },
+            {
+              "id": "obj_imagen_final",
+              "title": "Imagen Final",
+              "content": "Imagen definitiva aprobada y post‑procesada.",
+              "tags": "type>>image, status>>final",
+              "items": []
+            },
+            {
+              "id": "ma77bt0gdkhef",
+              "title": "Archivo de imagen",
+              "content": "Especificaciones de formato, resolución y dimensiones.",
+              "tags": "type>>file, format>>raster/ vector",
+              "items": []
+            },
+            {
+              "id": "ma778pgkkg555",
+              "title": "Subject",
+              "content": "Descripción de los sujetos principales en la escena.",
+              "tags": "type>>scene‑element",
+              "items": []
+            },
+            {
+              "id": "ma778pgkmshxg",
+              "title": "Environment",
+              "content": "Contexto o fondo de la escena.",
+              "tags": "type>>scene‑element",
+              "items": []
+            },
+            {
+              "id": "ma778pgk2a9no",
+              "title": "Props",
+              "content": "Objetos secundarios que complementan la composición.",
+              "tags": "type>>scene‑element",
+              "items": []
+            },
+            {
+              "id": "ma778pgk8xa34",
+              "title": "Textures",
+              "content": "Texturas y materiales aplicados a la escena.",
+              "tags": "type>>scene‑element",
+              "items": []
+            }
+          ]
+        },
+
+        {
+          "id": "mb4k1q0pzv8e6",
+          "title": "👷‍♂️People",
+          "content": "Colaboradores concretos del proyecto.",
+          "tags": "catalog>>People",
+          "items": [
+            {
+              "id": "per_isabela",
+              "title": "Isabella Moreno",
+              "content": "Senior Prompt Engineer especializada en arte realista.",
+              "tags": "position>>Prompt Engineer",
+              "items": []
+            },
+            {
+              "id": "per_luis",
+              "title": "Luis García",
+              "content": "Curador de imágenes con experiencia en fotografía editorial.",
+              "tags": "position>>Image Curator",
+              "items": []
+            },
+            {
+              "id": "per_carmen",
+              "title": "Carmen Sánchez",
+              "content": "Artista de post‑producción experta en retoque digital.",
+              "tags": "position>>Post‑Processing Artist",
+              "items": []
+            },
+            {
+              "id": "per_jorge",
+              "title": "Jorge Martínez",
+              "content": "Project Manager responsable de la planificación del sprint.",
+              "tags": "position>>Project Manager",
+              "items": []
+            }
+          ]
+        },
+
+        {
+          "id": "mb5l2p9qsx7f1",
+          "title": "🧰Tools",
+          "content": "Herramientas de software y hardware empleadas.",
+          "tags": "catalog>>Tools",
+          "items": [
+            {
+              "id": "ma77ewhwm35wf",
+              "title": "Leonardo.ai",
+              "content": "Plataforma de IA para la generación de imágenes texto‑a‑imagen y 3D.",
+              "tags": "tool>>software",
+              "items": []
+            },
+            {
+              "id": "tool_photoshop",
+              "title": "Adobe Photoshop",
+              "content": "Software de edición usado en la fase de post‑proceso.",
+              "tags": "tool>>software",
+              "items": []
+            },
+            {
+              "id": "tool_wacom",
+              "title": "Wacom Tablet",
+              "content": "Tableta gráfica para retoque y pintura digital.",
+              "tags": "tool>>hardware",
+              "items": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

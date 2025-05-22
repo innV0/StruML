@@ -1,0 +1,15 @@
+### SAMPLE_ITEM
+
+Provided as a response example
+
+{{#sample_item_block}}
+{{{sampleItem}}}
+{{/sample_item_block}}
+
+Your task is to generate the initial content and relevant tags for the item titled '{{itemTitle}}'.
+
+Based on ALL item information, context, and sample item, generate a field describing the main item '{{itemTitle}}'.
+- Your response must be tailored to the context
+- The sample item is provided as an example to describe a response. It's content must not be taken into account in your response.
+- Your response MUST be ONLY a valid JSON object containing the generated content and sub-items (if they exist in the sample item) for the main item '{{itemTitle}}'.
+- Do not use tags.

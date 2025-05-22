@@ -1,0 +1,112 @@
+{
+  "title": "Mermaid Flowchart Example",
+  "items": [
+    {
+      "id": "root1",
+      "title": "Process Flow Example",
+      "content": "This is an example of a process flow using Mermaid flowcharts. The subitems below will be rendered as a flowchart diagram.",
+      "tags": "example, flowchart",
+      "items": [
+        {
+          "id": "step1",
+          "title": "Start Process",
+          "content": "This is the starting point of our process.",
+          "tags": "next>>Data Collection",
+          "items": []
+        },
+        {
+          "id": "step2",
+          "title": "Data Collection",
+          "content": "Collect all necessary data for the process.",
+          "tags": "next>>Data Validation",
+          "items": []
+        },
+        {
+          "id": "step3",
+          "title": "Data Validation",
+          "content": "Validate the collected data to ensure it meets requirements.",
+          "tags": "next>>Data Processing",
+          "items": []
+        },
+        {
+          "id": "step4",
+          "title": "Data Processing",
+          "content": "Process the validated data.",
+          "tags": "next>>Decision Point",
+          "items": []
+        },
+        {
+          "id": "step5",
+          "title": "Decision Point",
+          "content": "Make a decision based on the processed data.",
+          "tags": "next>>Success Path, next>>Error Handling",
+          "items": []
+        },
+        {
+          "id": "step6",
+          "title": "Success Path",
+          "content": "Follow this path if the decision is positive.",
+          "tags": "next>>End Process",
+          "items": []
+        },
+        {
+          "id": "step7",
+          "title": "Error Handling",
+          "content": "Handle any errors that occurred during the process.",
+          "tags": "next>>Data Collection",
+          "items": []
+        },
+        {
+          "id": "step8",
+          "title": "End Process",
+          "content": "The process has completed successfully.",
+          "tags": "",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "root2",
+      "title": "Software Architecture Example",
+      "content": "This is an example of a software architecture using Mermaid flowcharts. The subitems below will be rendered as a flowchart diagram.",
+      "tags": "example, architecture",
+      "items": [
+        {
+          "id": "comp1",
+          "title": "Frontend",
+          "content": "The user interface of the application.",
+          "tags": "next>>API Gateway",
+          "items": []
+        },
+        {
+          "id": "comp2",
+          "title": "API Gateway",
+          "content": "Routes requests to appropriate services.",
+          "tags": "next>>Authentication Service, next>>Business Logic Service",
+          "items": []
+        },
+        {
+          "id": "comp3",
+          "title": "Authentication Service",
+          "content": "Handles user authentication and authorization.",
+          "tags": "next>>Business Logic Service",
+          "items": []
+        },
+        {
+          "id": "comp4",
+          "title": "Business Logic Service",
+          "content": "Implements the core business logic of the application.",
+          "tags": "next>>Database Service",
+          "items": []
+        },
+        {
+          "id": "comp5",
+          "title": "Database Service",
+          "content": "Manages data storage and retrieval.",
+          "tags": "",
+          "items": []
+        }
+      ]
+    }
+  ]
+}

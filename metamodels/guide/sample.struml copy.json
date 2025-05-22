@@ -1,0 +1,172 @@
+{
+  "title": "StruML doc",
+  "items": [
+    {
+      "id": "ma6dqm5jc131x",
+      "title": "Guide",
+      "content": "",
+      "tags": "",
+      "items": [
+        {
+          "id": "mb1x9k3wz4a7d",
+          "title": "🛠️Work",
+          "content": "",
+          "tags": "",
+          "items": [
+            {
+              "id": "mb1x9k3wz4a8e",
+              "title": "Identify Ghost",
+              "content": "Detect presence of a spectral entity at the haunted location\n\nObjective: Confirm the presence of paranormal entities and gather preliminary data.\n\nProcedure:\n1.  Initial Assessment: Review the Haunted Site Report for location specifics, reported phenomena, and historical context.\n1.  Equipment Calibration: Ensure all spectral detection equipment (EMF meters, thermal scanners, audio recorders) are correctly calibrated per manufacturer guidelines.\n1.  Environmental Sweep: Conduct systematic sweeps of the location, recording EMF fluctuations, temperature anomalies, and unusual sounds.\n1.  Data Analysis: Analyze gathered data to identify potential spectral signatures. Cross-reference readings with historical data and known paranormal indicators.\n1.  Entity Classification (If Possible): Based on available data, attempt to classify the entity (e.g., poltergeist, residual haunting).\n\nDeliverables:\n*   Ghost Profile: A detailed report outlining the entity's suspected characteristics, including energy signature, behavior patterns, and potential origin. Include raw data logs and analysis summaries.",
+              "tags": "input>>Haunted Site Report, position>>Field Agent, output>>Ghost Profile, important",
+              "items": []
+            },
+            {
+              "id": "mb1x9k3wz4a9f",
+              "title": "Deploy Trapping Equipment",
+              "content": "Set up proton trap and containment field around the ghost\n\nObjective: Establish a secure perimeter and deploy the proton trap to contain the identified ghost.\n\nProcedure:\n1.  Perimeter Establishment: Based on the Ghost Profile, identify the ghost's likely movement patterns and establish a secure perimeter using caution tape and warning signs to prevent civilian interference.\n2.  Proton Trap Placement: Position the proton trap in the center of the ghost's identified zone of activity. Ensure the trap is on a level surface and free from obstructions.\n3.  Equipment Calibration: Utilizing the Ecto Scanner, calibrate the proton trap to the specific energy signature identified in the Ghost Profile. Fine-tune the containment field frequency to maximize capture efficiency.\n4.  Deployment Initiation: Activate the proton trap remotely, initiating the containment field. Monitor the field's integrity using the Ecto Scanner, adjusting field parameters as necessary to maintain a stable trapping environment.\n5.  Verification: Once the ghost is contained, verify successful capture using the Ecto Scanner, confirming that the energy signature is stable within the trap's confines.\n\nDeliverables:\n*   Trapping Field: A fully operational electromagnetic containment field, verified for stability and effectiveness in containing the identified ghost. This includes a log of all calibration settings and field adjustments made during deployment.\n\nObjective: Establish a secure perimeter and deploy the proton trap to contain the identified ghost.\n\nProcedure:\n1.  Perimeter Establishment: Based on the Ghost Profile, identify the ghost's likely movement patterns and establish a secure perimeter using caution tape and warning signs to prevent civilian interference.\n2.  Proton Trap Placement: Position the proton trap in the center of the ghost's identified zone of activity. Ensure the trap is on a level surface and free from obstructions.\n3.  Equipment Calibration: Utilizing the Ecto Scanner, calibrate the proton trap to the specific energy signature identified in the Ghost Profile. Fine-tune the containment field frequency to maximize capture efficiency.\n4.  Deployment Initiation: Activate the proton trap remotely, initiating the containment field. Monitor the field's integrity using the Ecto Scanner, adjusting field parameters as necessary to maintain a stable trapping environment.\n5.  Verification: Once the ghost is contained, verify successful capture using the Ecto Scanner, confirming that the energy signature is stable within the trap's confines.\n\nDeliverables:\n*   Trapping Field: A fully operational electromagnetic containment field, verified for stability and effectiveness in containing the identified ghost. This includes a log of all calibration settings and field adjustments made during deployment.",
+              "tags": "input>>Ghost Profile, position>>Tech Specialist, output>>Trapping Field",
+              "items": []
+            },
+            {
+              "id": "mb1x9k3wz4a0g",
+              "title": "Secure Containment",
+              "content": "Transfer the captured ghost into the containment unit",
+              "tags": "input>>Trapping Field, position>>Containment Officer, output>>Contained Ghost",
+              "items": []
+            },
+            {
+              "id": "ma73eivb45qvc",
+              "title": "Document case",
+              "content": "",
+              "tags": "",
+              "items": []
+            }
+          ]
+        },
+        {
+          "id": "mb2h4d7vty5c1",
+          "title": "💼Positions",
+          "content": "",
+          "tags": "",
+          "items": [
+            {
+              "id": "mb2h4d7vty5c3",
+              "title": "Tech Specialist",
+              "content": "Engineer in charge of operating and calibrating trapping equipment",
+              "tags": "",
+              "items": []
+            },
+            {
+              "id": "mb2h4d7vty5c2",
+              "title": "Field Agent",
+              "content": "On-site specialist responsible for initial ghost detection and engagement",
+              "tags": "",
+              "items": []
+            },
+            {
+              "id": "mb2h4d7vty5c4",
+              "title": "Containment Officer",
+              "content": "Responsible for safe transfer and storage of captured spirits",
+              "tags": "",
+              "items": []
+            }
+          ]
+        },
+        {
+          "id": "mb3j7y8uxv2b9",
+          "title": "📦Objects",
+          "content": "",
+          "tags": "",
+          "items": [
+            {
+              "id": "mb3j7y8uxv2b1",
+              "title": "Haunted Site Report",
+              "content": "Document detailing location coordinates and paranormal readings",
+              "tags": "",
+              "items": []
+            },
+            {
+              "id": "mb3j7y8uxv2b2",
+              "title": "Trapping Field",
+              "content": "Electromagnetic containment field configured to hold a ghost test\n\nA fully operational electromagnetic containment field, verified for stability and effectiveness in containing the identified ghost. This includes a log of all calibration settings and field adjustments made during deployment.\n\nA fully operational electromagnetic containment field, verified for stability and effectiveness in containing the identified ghost. This includes a log of all calibration settings and field adjustments made during deployment.\n\nA fully operational electromagnetic containment field, verified for stability and effectiveness in containing the identified ghost. This includes a log of all calibration settings and field adjustments made during deployment",
+              "tags": "test, 3>>Risk",
+              "items": []
+            },
+            {
+              "id": "mb3j7y8uxv2b3",
+              "title": "Containment Unit",
+              "content": "High-security vault for long-term ghost storage",
+              "tags": "",
+              "items": []
+            },
+            {
+              "id": "ma75dyucyzdwc",
+              "title": "Ghost Profile",
+              "content": "A detailed report outlining the entity's suspected characteristics, including energy signature, behavior patterns, and potential origin. Include raw data logs and analysis summaries.",
+              "tags": "",
+              "items": []
+            }
+          ]
+        },
+        {
+          "id": "mb4k1q0pzv8e6",
+          "title": "👷‍♂️People",
+          "content": "",
+          "tags": "",
+          "items": [
+            {
+              "id": "mb4k1q0pzv8e8",
+              "title": "Bob Rayner",
+              "content": "Lead technician specialized in proton pack calibration",
+              "tags": "position>>Tech Specialist",
+              "items": []
+            },
+            {
+              "id": "mb4k1q0pzv8e7",
+              "title": "Alice Hunter",
+              "content": "Veteran field agent with expertise in spectral tracking",
+              "tags": "position>>Field Agent",
+              "items": []
+            },
+            {
+              "id": "mb4k1q0pzv8e9",
+              "title": "Charlie Wells",
+              "content": "Containment officer overseeing ghost vault integrity",
+              "tags": "position>>Containment Officer",
+              "items": []
+            }
+          ]
+        },
+        {
+          "id": "mb5l2p9qsx7f1",
+          "title": "🧰Tools",
+          "content": "",
+          "tags": "",
+          "items": [
+            {
+              "id": "mb5l2p9qsx7f2",
+              "title": "Proton Pack",
+              "content": "Portable particle accelerator used to weaken ghost ectoplasm prior to capture",
+              "tags": "",
+              "items": []
+            },
+            {
+              "id": "mb5l2p9qsx7f3",
+              "title": "Ghost Trap",
+              "content": "Handheld device for containing ghosts once they have been weakened",
+              "tags": "",
+              "items": []
+            },
+            {
+              "id": "mb5l2p9qsx7f4",
+              "title": "Ecto Scanner",
+              "content": "Device for scanning and analyzing paranormal energy signatures in the field",
+              "tags": "",
+              "items": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

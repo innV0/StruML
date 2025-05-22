@@ -1,0 +1,205 @@
+{
+  "title": "Meeting Recording StruML",
+  "tags": "metamodel::guide,metamodel_version::0.1.0,doc_version::0.1.0",
+  "items": [
+    {
+      "id": "mr_guide",
+      "title": "🧭Guide",
+      "content": "Guía para grabar una reunión, transcribirla con Whisper, resumirla con ChatGPT y enviar las minutas.",
+      "tags": "type::guide,document>>Guide",
+      "items": [
+        {
+          "id": "mr_work",
+          "title": "🛠️Work",
+          "content": "Flujo de trabajo end‑to‑end para gestionar la reunión.",
+          "tags": "process>>workflow",
+          "items": [
+            {
+              "id": "mr_recording",
+              "title": "Recording",
+              "content": "Grabar la reunión usando la app de grabadora del móvil.",
+              "tags": "role>>Meeting Recorder, output>>Audio Recording",
+              "items": []
+            },
+            {
+              "id": "mr_transcription",
+              "title": "Transcription",
+              "content": "Convertir el audio a texto con Whisper.",
+              "tags": "role>>Transcriber, input>>Audio Recording, output>>Transcript",
+              "items": []
+            },
+            {
+              "id": "mr_summarization",
+              "title": "Summarization",
+              "content": "Subir la transcripción a ChatGPT y generar un resumen.",
+              "tags": "role>>Summarizer, input>>Transcript, output>>Meeting Summary",
+              "items": []
+            },
+            {
+              "id": "mr_minutes",
+              "title": "Minutes Drafting",
+              "content": "Redactar las minutas basadas en el resumen.",
+              "tags": "role>>Minutes Writer, input>>Meeting Summary, output>>Minutes Document",
+              "items": []
+            },
+            {
+              "id": "mr_distribution",
+              "title": "Distribution",
+              "content": "Enviar las minutas al participante de la reunión.",
+              "tags": "role>>Sender, input>>Minutes Document, output>>Sent Minutes",
+              "items": []
+            }
+          ]
+        },
+
+        {
+          "id": "mr_roles",
+          "title": "💼Roles",
+          "content": "Roles involucrados en el flujo.",
+          "tags": "catalog>>Roles",
+          "items": [
+            {
+              "id": "mr_recorder_role",
+              "title": "Meeting Recorder",
+              "content": "Persona que graba el audio de la reunión con el móvil.",
+              "tags": "role>>Meeting Recorder",
+              "items": []
+            },
+            {
+              "id": "mr_transcriber_role",
+              "title": "Transcriber",
+              "content": "Servicio Whisper u operador que realiza la transcripción.",
+              "tags": "role>>Transcriber",
+              "items": []
+            },
+            {
+              "id": "mr_summarizer_role",
+              "title": "Summarizer",
+              "content": "ChatGPT o persona que sintetiza la información en un resumen.",
+              "tags": "role>>Summarizer",
+              "items": []
+            },
+            {
+              "id": "mr_writer_role",
+              "title": "Minutes Writer",
+              "content": "Responsable de redactar el documento de minutas.",
+              "tags": "role>>Minutes Writer",
+              "items": []
+            },
+            {
+              "id": "mr_sender_role",
+              "title": "Sender",
+              "content": "Encargado de distribuir las minutas al destinatario.",
+              "tags": "role>>Sender",
+              "items": []
+            }
+          ]
+        },
+
+        {
+          "id": "mr_objects",
+          "title": "📦Objects",
+          "content": "Artefactos generados o utilizados.",
+          "tags": "catalog>>Artifacts",
+          "items": [
+            {
+              "id": "obj_audio",
+              "title": "Audio Recording",
+              "content": "Archivo de audio (WAV/M4A) con la grabación de la reunión.",
+              "tags": "type>>file, format>>audio",
+              "items": []
+            },
+            {
+              "id": "obj_transcript",
+              "title": "Transcript",
+              "content": "Transcripción textual completa del audio.",
+              "tags": "type>>text",
+              "items": []
+            },
+            {
+              "id": "obj_summary",
+              "title": "Meeting Summary",
+              "content": "Resumen de los puntos clave discutidos.",
+              "tags": "type>>text, alias>>Summary",
+              "items": []
+            },
+            {
+              "id": "obj_minutes_doc",
+              "title": "Minutes Document",
+              "content": "Documento de minutas (PDF o DOCX) listo para enviar.",
+              "tags": "type>>document",
+              "items": []
+            },
+            {
+              "id": "obj_sent_minutes",
+              "title": "Sent Minutes",
+              "content": "Confirmación o registro de envío de minutas.",
+              "tags": "type>>status",
+              "items": []
+            }
+          ]
+        },
+
+        {
+          "id": "mr_tools",
+          "title": "🧰Tools",
+          "content": "Herramientas empleadas en cada fase.",
+          "tags": "catalog>>Tools",
+          "items": [
+            {
+              "id": "tool_mobile_recorder",
+              "title": "Mobile Recorder App",
+              "content": "Aplicación nativa de grabación en smartphone.",
+              "tags": "tool>>software",
+              "items": []
+            },
+            {
+              "id": "tool_whisper",
+              "title": "OpenAI Whisper",
+              "content": "Modelo de IA para transcripción automática.",
+              "tags": "tool>>software",
+              "items": []
+            },
+            {
+              "id": "tool_chatgpt",
+              "title": "ChatGPT",
+              "content": "IA utilizada para generar el resumen y asistir en la redacción de minutas.",
+              "tags": "tool>>software",
+              "items": []
+            },
+            {
+              "id": "tool_word_processor",
+              "title": "Word Processor",
+              "content": "Procesador de textos (MS Word, Google Docs).",
+              "tags": "tool>>software",
+              "items": []
+            },
+            {
+              "id": "tool_email",
+              "title": "Email Client",
+              "content": "Cliente de correo electrónico para enviar minutas.",
+              "tags": "tool>>software",
+              "items": []
+            }
+          ]
+        },
+
+        {
+          "id": "mr_people",
+          "title": "👷‍♂️People",
+          "content": "Participantes de ejemplo.",
+          "tags": "catalog>>People",
+          "items": [
+            {
+              "id": "per_alex",
+              "title": "Alex Ruiz",
+              "content": "Meeting Recorder y Minutes Writer en este flujo.",
+              "tags": "role>>Meeting Recorder; role>>Minutes Writer",
+              "items": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "title": "Meeting Recording StruML",
+  "tags": "",
+  "items": [
+    {
+      "title": "🧭Guides",
+      "content": "",
+      "tags": "",
+      "items": [
+        {
+          "title": "Guide title",
+          "content": "",
+          "tags": "",
+          "items": [
+            {
+              "title": "🛠️Work",
+              "content": "",
+              "tags": "",
+              "items": []
+            },
+            {
+              "title": "📦Objects",
+              "content": "",
+              "tags": "",
+              "items": []
+            },
+            {
+              "title": "🧰Tools",
+              "content": "",
+              "tags": "",
+              "items": []
+            },
+            {
+              "title": "💼Roles",
+              "content": "",
+              "tags": "",
+              "items": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
