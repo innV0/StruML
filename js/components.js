@@ -369,90 +369,170 @@ const TagsList = ({ tagsString }) => {
   );
 };
 
-// Tree item component with drag and drop functionality using @dnd-kit/sortable
+// Tree item component with Native HTML5 Drag and Drop
 const TreeItem = ({ item, level = 0, filteredItems }) => {
   const { state, actions } = useAppContext();
-  const { selectedItemId } = state;
-  const { selectItem } = actions;
-  
+  const { selectedItemId, document } = state; // Ensure document is available
+  const { selectItem, reorderItems } = actions; // Ensure reorderItems is available
+
   const [isExpanded, setIsExpanded] = React.useState(true);
-  // State to store the current drop position with debounce
-  const [stableDropPosition, setStableDropPosition] = React.useState(null);
-  // Reference to store the timeout ID for debounce
-  const debounceTimerRef = React.useRef(null);
-  
-  // Define position types
+  const [isBeingDragged, setIsBeingDragged] = React.useState(false);
+  const [dropZoneHint, setDropZoneHint] = React.useState(null); // 'before', 'after', 'inside', or null
+
+  // Define position types (can be local or global if shared)
   const POSITION_TYPES = {
     BEFORE: 'before',
     AFTER: 'after',
     INSIDE: 'inside'
   };
-  
-  // Get references to dnd libraries
-  const { useSortable } = DndKit.Sortable; 
-  const { CSS } = DndKit.Utilities; 
-  
-  // Set up sortable
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-    isOver,
-    over,
-    node
-  } = useSortable({
-    id: item.id,
-    data: { item, level } // Include level for indentation logic if needed elsewhere
-  });
-  
-  // Function to determine drop position with hysteresis
-  React.useEffect(() => {
-    if (isOver && over?.data?.current) {
-      // Get the current position from the over data
-      const currentPosition = over.data.current.position;
-      
-      // If the position has changed, set up a debounce timer
-      if (currentPosition !== stableDropPosition) {
-        // Clear any existing timer
-        if (debounceTimerRef.current) {
-          clearTimeout(debounceTimerRef.current);
+
+  const handleDragStart = (event) => {
+    event.dataTransfer.setData('text/plain', item.id);
+    event.dataTransfer.effectAllowed = 'move';
+    setIsBeingDragged(true);
+    // event.stopPropagation(); // Use with caution
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault(); // Necessary to allow dropping
+    event.dataTransfer.dropEffect = 'move';
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const mouseY = event.clientY;
+    const relativeY = mouseY - rect.top;
+    const height = rect.height;
+    let position = null;
+
+    if (relativeY < height * 0.25) {
+      position = POSITION_TYPES.BEFORE;
+    } else if (relativeY > height * 0.75) {
+      position = POSITION_TYPES.AFTER;
+    } else {
+      position = POSITION_TYPES.INSIDE;
+    }
+    setDropZoneHint(position);
+    // event.stopPropagation(); // Use with caution
+  };
+
+  const handleDragLeave = (event) => {
+    // Check if the mouse truly left the element and its children that might also fire events
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+        setDropZoneHint(null);
+    }
+    // event.stopPropagation(); // Use with caution
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation(); // Crucial to prevent parent items from handling the drop
+
+    const sourceId = event.dataTransfer.getData('text/plain');
+    const targetItemId = item.id; // This is the item the sourceId is being dropped onto
+    const dropPosition = dropZoneHint; // Use the state set by onDragOver
+
+    // Validation 1: Prevent dropping an item onto itself (as a sibling or when not 'inside')
+    // This check is more about direct identity before considering complex parent-child relationships.
+    if (sourceId === targetItemId && dropPosition !== POSITION_TYPES.INSIDE) {
+      console.warn("Native D&D: Cannot drop item onto itself (unless it's to become a child, handled by ancestor check).");
+      setDropZoneHint(null);
+      return;
+    }
+
+    // Determine the tentative new parent ID for the source item
+    let tentativeTargetParentId;
+    if (dropPosition === POSITION_TYPES.INSIDE) {
+        tentativeTargetParentId = targetItemId; // Source item wants to become a child of targetItemId
+    } else {
+        // Source item wants to be a sibling of targetItemId
+        const parentInfoOfTargetItem = window.StruMLApp.Utils.findParentItem(document.items, targetItemId);
+        tentativeTargetParentId = parentInfoOfTargetItem ? parentInfoOfTargetItem.parent?.id : null; // null if targetItemId is a root item
+    }
+
+    // Validation 2: Prevent dropping an item to become a direct child of itself.
+    // This also covers the case: sourceId === targetItemId && dropPosition === 'inside'
+    if (sourceId === tentativeTargetParentId) {
+        console.warn("Native D&D: Cannot make an item a direct child of itself.");
+        setDropZoneHint(null);
+        return;
+    }
+
+    // Validation 3: Prevent dropping a parent item into one of its own descendants.
+    // Check if the `tentativeTargetParentId` is a descendant of `sourceId`.
+    if (tentativeTargetParentId) { // Only if the item is not being dropped at the root level next to other root items
+        let ancestorOfTentativeParent = window.StruMLApp.Utils.findParentItem(document.items, tentativeTargetParentId);
+        let currentAncestorIdForCheck = tentativeTargetParentId; 
+
+        while (currentAncestorIdForCheck) {
+            if (currentAncestorIdForCheck === sourceId) {
+                console.warn("Native D&D: Cannot move an item into its own descendant.");
+                setDropZoneHint(null);
+                return;
+            }
+            const parentInfo = window.StruMLApp.Utils.findParentItem(document.items, currentAncestorIdForCheck);
+            currentAncestorIdForCheck = parentInfo ? parentInfo.parent?.id : null;
         }
-        
-        // Set a new timer to update the stable position after a delay
-        debounceTimerRef.current = setTimeout(() => {
-          setStableDropPosition(currentPosition);
-        }, 100); // 100ms debounce delay
-      }
-    } else if (!isOver && stableDropPosition) {
-      // Clear the position when not over any droppable
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-      setStableDropPosition(null);
     }
     
-    // Cleanup function to clear the timer when component unmounts
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
+    // If all validations pass, proceed to calculate final targetParentId and newIndex
+    let targetParentId = null; // This will be the final parent ID for reorderItems
+    let newIndex = 0;
+
+    if (dropPosition === POSITION_TYPES.INSIDE) {
+      targetParentId = targetItemId; // The item being dropped onto becomes the parent
+      const targetItemDetails = window.StruMLApp.Utils.findItemById(document.items, targetItemId);
+      newIndex = targetItemDetails?.items?.length || 0; // Append to end of children
+    } else if (dropPosition === POSITION_TYPES.BEFORE || dropPosition === POSITION_TYPES.AFTER) {
+      // Dropping as a sibling
+      const parentInfoOfTarget = window.StruMLApp.Utils.findParentItem(document.items, targetItemId);
+      targetParentId = parentInfoOfTarget ? parentInfoOfTarget.parent?.id : null; // null if target is a root item
+      const siblings = parentInfoOfTarget ? parentInfoOfTarget.parent.items : document.items;
+      const overIndex = siblings.findIndex(i => i.id === targetItemId);
+
+      if (overIndex === -1) { 
+        console.error("Native D&D Error: Target item for sibling drop not found in its collection.");
+        setDropZoneHint(null);
+        return;
       }
-    };
-  }, [isOver, over, stableDropPosition]);
-  
-  // Styles for the draggable item
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-    position: 'relative' // Needed for z-indexing drop zones correctly
+      newIndex = dropPosition === POSITION_TYPES.BEFORE ? overIndex : overIndex + 1;
+    } else {
+      // Fallback for undefined dropPosition (should ideally not happen if onDragOver/Leave are robust)
+      console.warn("Native D&D: Drop occurred without a clear drop zone hint. Attempting fallback to place after target.");
+      const parentInfoOfTarget = window.StruMLApp.Utils.findParentItem(document.items, targetItemId);
+      targetParentId = parentInfoOfTarget ? parentInfoOfTarget.parent?.id : null;
+      const siblings = parentInfoOfTarget ? parentInfoOfTarget.parent.items : document.items;
+      const overIndex = siblings.findIndex(i => i.id === targetItemId);
+      if (overIndex !== -1) {
+        newIndex = overIndex + 1;
+      } else { 
+        console.error("Native D&D Fallback Drop Error: Target item not found. Cannot determine drop position.");
+        setDropZoneHint(null);
+        return;
+      }
+    }
+    
+    // Final check to ensure sourceId is valid before reordering
+    if (sourceId) {
+        console.log(`Native D&D Reordering: sourceId=${sourceId}, targetParentId=${targetParentId}, newIndex=${newIndex}, dropPosition=${dropPosition}`);
+        reorderItems(sourceId, targetParentId, newIndex);
+    } else {
+        console.error("Native D&D Error: sourceId is missing, cannot reorder.");
+    }
+
+    setDropZoneHint(null);
   };
-  
+
+  const handleDragEnd = (event) => {
+    setIsBeingDragged(false);
+    setDropZoneHint(null); // Clean up visuals
+  };
+
+  // Dynamic style for the draggable item
+  const style = {
+    opacity: isBeingDragged ? 0.5 : 1,
+    position: 'relative', // For drop indicator positioning
+  };
   const hasChildren = item.items && item.items.length > 0;
   const isSelected = selectedItemId === item.id;
-  
   const isVisible = (currentItem) => {
     if (!filteredItems) return true;
     if (filteredItems.includes(currentItem.id)) return true;
@@ -481,7 +561,7 @@ const TreeItem = ({ item, level = 0, filteredItems }) => {
   
   const isHighlighted = filteredItems && filteredItems.includes(item.id);
   
-  // Handle keyboard navigation
+  // Handle keyboard navigation (remains unchanged)
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       // Select item
@@ -500,30 +580,34 @@ const TreeItem = ({ item, level = 0, filteredItems }) => {
   };
   
   return (
-    <div className="tree-item-container">
+    <div className={`tree-item-container ${isBeingDragged ? 'dragging-native' : ''}`}>
       {/* Drop zone for BEFORE position */}
       <div 
-        className={`drop-zone drop-zone-before ${stableDropPosition === POSITION_TYPES.BEFORE ? 'active' : ''}`}
+        className={`drop-zone drop-zone-before ${dropZoneHint === POSITION_TYPES.BEFORE ? 'active' : ''}`}
       >
-        {stableDropPosition === POSITION_TYPES.BEFORE && (
+        {dropZoneHint === POSITION_TYPES.BEFORE && (
           <div className="drop-indicator before"></div>
         )}
       </div>
       
       <div 
-        ref={setNodeRef}
-        className={`tree-item flex items-center px-2 py-1 cursor-pointer ${isSelected ? 'selected' : ''} ${isHighlighted ? 'bg-blue-50' : ''} ${isDragging ? 'is-dragging' : ''}`}
-        style={{ ...style, paddingLeft: `${level * 16 + 8}px` }}
-        onClick={handleSelect}
-        onKeyDown={handleKeyDown}
+        draggable="true"
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onDragEnd={handleDragEnd}
+        className={`tree-item flex items-center px-2 py-1 cursor-pointer ${isSelected ? 'selected' : ''} ${isHighlighted ? 'bg-blue-50' : ''} ${isBeingDragged ? 'opacity-50' : ''}`}
+        style={{ ...style, paddingLeft: `${level * 16 + 8}px` }} // Keep existing style for padding
+        onClick={handleSelect} // Keep existing select logic
+        onKeyDown={handleKeyDown} // Keep existing keyboard nav
         data-item-id={item.id}
         aria-label={`Item: ${item.title}`}
-        aria-grabbed={isDragging}
-        role="treeitem"
-        tabIndex={0} // Make item focusable
+        role="treeitem" // Standard ARIA role
+        tabIndex={0} 
       >
-        {/* Drag handle */}
-        <div className="drag-handle mr-1" {...listeners} {...attributes}>
+        {/* Native Drag Handle (Optional - entire item is draggable) */}
+         <div className="drag-handle mr-1" title="Drag to reorder"> {/* Simple visual cue */}
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-grip-vertical" viewBox="0 0 16 16">
             <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
           </svg>
@@ -552,23 +636,17 @@ const TreeItem = ({ item, level = 0, filteredItems }) => {
           </span>
         )}
         
-        {/* Drop zone for INSIDE position (visible only when dragging) */}
-        {isDragging && ( // Conditionally render the 'inside' drop zone
-          <div 
-            className={`drop-zone drop-zone-inside ${stableDropPosition === POSITION_TYPES.INSIDE ? 'active' : ''}`}
-          >
-            {stableDropPosition === POSITION_TYPES.INSIDE && (
-              <div className="drop-indicator inside"></div>
-            )}
-          </div>
+        {/* Visual drop indicator for INSIDE */}
+        {dropZoneHint === POSITION_TYPES.INSIDE && (
+             <div className="drop-indicator inside active"></div>
         )}
       </div>
       
       {/* Drop zone for AFTER position */}
       <div 
-        className={`drop-zone drop-zone-after ${stableDropPosition === POSITION_TYPES.AFTER ? 'active' : ''}`}
+        className={`drop-zone drop-zone-after ${dropZoneHint === POSITION_TYPES.AFTER ? 'active' : ''}`}
       >
-        {stableDropPosition === POSITION_TYPES.AFTER && (
+        {dropZoneHint === POSITION_TYPES.AFTER && (
           <div className="drop-indicator after"></div>
         )}
       </div>
@@ -596,108 +674,13 @@ window.StruMLApp.Components.TreeItem = TreeItem;
 const Sidebar = () => {
   const { state, actions } = useAppContext();
   const { document, filteredItems, showTagFilter } = state;
-  const { createItem, toggleTagFilter, reorderItems } = actions;
+  // Removed reorderItems from actions here as it's called within TreeItem's onDrop
+  const { createItem, toggleTagFilter } = actions; 
   
   const [allExpanded, setAllExpanded] = React.useState(true);
 
-  // DndKit setup
-  const { DndContext, PointerSensor, KeyboardSensor, useSensor, useSensors, closestCenter } = DndKit.Core;
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { 
-        distance: 10,
-      },
-    }),
-    useSensor(KeyboardSensor) // For keyboard accessibility
-  );
-
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-
-    if (!active || !over || active.id === over.id) {
-      console.log("Drag cancelled or no movement.");
-      return;
-    }
-
-    const sourceId = active.id; // ID of the item being dragged
-    const overId = over.id;   // ID of the item being dropped over or the sortable context
-
-    // The `over.data.current.position` is set by the `TreeItem`'s drop zones.
-    // This is crucial for determining if it's a drop 'before', 'after', or 'inside'.
-    const position = over.data?.current?.position;
-    
-    console.log("Drag End Event:", event);
-    console.log(`Source ID: ${sourceId}, Over ID: ${overId}, Position: ${position}`);
-
-
-    let targetParentId = null;
-    let newIndex = 0;
-
-    if (position === 'inside') {
-      targetParentId = overId; // Dropping inside the 'over' item
-      // Find the 'over' item to determine its children count for appending
-      const targetItemDetails = window.StruMLApp.Utils.findItemById(document.items, overId);
-      newIndex = targetItemDetails?.items?.length || 0; // Append to children, or 0 if no children
-    } else if (position === 'before' || position === 'after') {
-      // Dropping before or after the 'over' item
-      const parentInfo = window.StruMLApp.Utils.findParentItem(document.items, overId);
-      targetParentId = parentInfo ? parentInfo.parent?.id : null; // null if dropping at root relative to another root item
-      
-      if (parentInfo) { // Dropping relative to a child item
-        newIndex = position === 'before' ? parentInfo.index : parentInfo.index + 1;
-      } else { // Dropping relative to a root item (overId is a root item)
-        const rootItems = document.items;
-        const overIndexInRoot = rootItems.findIndex(item => item.id === overId);
-        if (overIndexInRoot === -1) {
-            console.error("DragEnd Error: Could not find 'over' item in root for before/after positioning.");
-            return;
-        }
-        newIndex = position === 'before' ? overIndexInRoot : overIndexInRoot + 1;
-      }
-    } else {
-        // This case might occur if dropping on the sortable context itself, not a specific drop zone.
-        // Or if `over.data.current.position` is not set.
-        // Fallback: Treat as reordering within the same parent or at root.
-        // This part needs careful consideration based on desired behavior for ambiguous drops.
-        console.warn(`DragEnd: Drop position '${position}' is not explicit. Attempting to infer.`);
-
-        // Try to find the parent of the 'over' item. If it's a direct child of root, parent is null.
-        const overParentInfo = window.StruMLApp.Utils.findParentItem(document.items, overId);
-        targetParentId = overParentInfo ? overParentInfo.parent?.id : null;
-
-        // Determine newIndex based on whether 'over' item is a child or root item
-        const collection = overParentInfo ? overParentInfo.parent.items : document.items;
-        const overItemIndex = collection.findIndex(item => item.id === overId);
-
-        if (overItemIndex === -1) {
-            console.error("DragEnd Error: Could not find 'over' item in its collection for fallback.");
-            return;
-        }
-        // Default to placing it after the 'over' item if position is unclear
-        newIndex = overItemIndex +1;
-
-        // A more sophisticated approach might involve collision detection geometry to guess 'before' or 'after'
-        // For now, this simplified fallback will place it after the 'over' item in the same list.
-    }
-    
-    // Prevent dragging an item into itself or its own children
-    if (sourceId === targetParentId) {
-        console.warn("DragEnd: Attempted to move item into itself.");
-        return;
-    }
-    let checkParent = targetParentId;
-    while(checkParent) { // Iterate upwards from the target parent
-        if (checkParent === sourceId) {
-            console.warn("DragEnd: Attempted to move item into its own descendant.");
-            return;
-        }
-        const parentDetails = window.StruMLApp.Utils.findParentItem(document.items, checkParent);
-        checkParent = parentDetails ? parentDetails.parent?.id : null;
-    }
-
-    console.log(`DragEnd Reordering: sourceId=${sourceId}, targetParentId=${targetParentId}, newIndex=${newIndex}, determinedPosition=${position || 'inferred_after'}`);
-    reorderItems(sourceId, targetParentId, newIndex);
-  };
+  // DndKit specific code (DndContext, sensors, handleDragEnd) is removed.
+  // Native HTML5 D&D is handled by individual TreeItem components.
 
   const isItemVisible = (item) => {
     if (!filteredItems) return true;
@@ -785,24 +768,24 @@ const Sidebar = () => {
       
       {showTagFilter && <TagFilter />}
       
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="py-2 flex-1 overflow-y-auto">
-          {visibleItems.map(item => (
-            <TreeItem 
-              key={item.id} 
-              item={item} 
-              filteredItems={filteredItems}
-            />
-          ))}
-          {visibleItems.length === 0 && (
-            <div className="px-4 py-3 text-gray-500 text-sm">
-              {document.items.length === 0 
-                ? "No items in this document. Click the + button to add an item."
-                : "No items match the current filter."}
-            </div>
-          )}
-        </div>
-      </DndContext>
+      {/* DndContext wrapper is removed */}
+      <div className="py-2 flex-1 overflow-y-auto">
+        {visibleItems.map(item => (
+          <TreeItem 
+            key={item.id} 
+            item={item} 
+            filteredItems={filteredItems}
+            // document and actions are passed implicitly via useAppContext within TreeItem
+          />
+        ))}
+        {visibleItems.length === 0 && (
+          <div className="px-4 py-3 text-gray-500 text-sm">
+            {document.items.length === 0 
+              ? "No items in this document. Click the + button to add an item."
+              : "No items match the current filter."}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
