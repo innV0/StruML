@@ -389,8 +389,8 @@ const TreeItem = ({ item, level = 0, filteredItems }) => {
   };
   
   // Get references to dnd libraries
-  const { useSortable } = Sortable; // Assuming Sortable is globally available
-  const { CSS } = DndKit.utilities; // Assuming DndKit is globally available
+  const { useSortable } = DndKit.Sortable; 
+  const { CSS } = DndKit.Utilities; 
   
   // Set up sortable
   const {
@@ -601,10 +601,10 @@ const Sidebar = () => {
   const [allExpanded, setAllExpanded] = React.useState(true);
 
   // DndKit setup
-  const { DndContext, PointerSensor, KeyboardSensor, useSensor, useSensors, closestCenter } = DndKit;
+  const { DndContext, PointerSensor, KeyboardSensor, useSensor, useSensors, closestCenter } = DndKit.Core;
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { // Require the mouse to move by 10 pixels before activating
+      activationConstraint: { 
         distance: 10,
       },
     }),
