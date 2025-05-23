@@ -369,21 +369,170 @@ const TagsList = ({ tagsString }) => {
   );
 };
 
-// Tree item component with drag and drop functionality
+// Tree item component with Native HTML5 Drag and Drop
 const TreeItem = ({ item, level = 0, filteredItems }) => {
   const { state, actions } = useAppContext();
-  const { selectedItemId, document } = state;
-  const { selectItem, reorderItems } = actions;
-  
+  const { selectedItemId, document } = state; // Ensure document is available
+  const { selectItem, reorderItems } = actions; // Ensure reorderItems is available
+
   const [isExpanded, setIsExpanded] = React.useState(true);
-  const [isDragging, setIsDragging] = React.useState(false);
-  const [dropPosition, setDropPosition] = React.useState(null);
-  
-  const itemId = String(item.id);
-  
+  const [isBeingDragged, setIsBeingDragged] = React.useState(false);
+  const [dropZoneHint, setDropZoneHint] = React.useState(null); // 'before', 'after', 'inside', or null
+
+  // Define position types (can be local or global if shared)
+  const POSITION_TYPES = {
+    BEFORE: 'before',
+    AFTER: 'after',
+    INSIDE: 'inside'
+  };
+
+  const handleDragStart = (event) => {
+    event.dataTransfer.setData('text/plain', item.id);
+    event.dataTransfer.effectAllowed = 'move';
+    setIsBeingDragged(true);
+    // event.stopPropagation(); // Use with caution
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault(); // Necessary to allow dropping
+    event.dataTransfer.dropEffect = 'move';
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const mouseY = event.clientY;
+    const relativeY = mouseY - rect.top;
+    const height = rect.height;
+    let position = null;
+
+    if (relativeY < height * 0.25) {
+      position = POSITION_TYPES.BEFORE;
+    } else if (relativeY > height * 0.75) {
+      position = POSITION_TYPES.AFTER;
+    } else {
+      position = POSITION_TYPES.INSIDE;
+    }
+    setDropZoneHint(position);
+    // event.stopPropagation(); // Use with caution
+  };
+
+  const handleDragLeave = (event) => {
+    // Check if the mouse truly left the element and its children that might also fire events
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+        setDropZoneHint(null);
+    }
+    // event.stopPropagation(); // Use with caution
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation(); // Crucial to prevent parent items from handling the drop
+
+    const sourceId = event.dataTransfer.getData('text/plain');
+    const targetItemId = item.id; // This is the item the sourceId is being dropped onto
+    const dropPosition = dropZoneHint; // Use the state set by onDragOver
+
+    // Validation 1: Prevent dropping an item onto itself (as a sibling or when not 'inside')
+    // This check is more about direct identity before considering complex parent-child relationships.
+    if (sourceId === targetItemId && dropPosition !== POSITION_TYPES.INSIDE) {
+      console.warn("Native D&D: Cannot drop item onto itself (unless it's to become a child, handled by ancestor check).");
+      setDropZoneHint(null);
+      return;
+    }
+
+    // Determine the tentative new parent ID for the source item
+    let tentativeTargetParentId;
+    if (dropPosition === POSITION_TYPES.INSIDE) {
+        tentativeTargetParentId = targetItemId; // Source item wants to become a child of targetItemId
+    } else {
+        // Source item wants to be a sibling of targetItemId
+        const parentInfoOfTargetItem = window.StruMLApp.Utils.findParentItem(document.items, targetItemId);
+        tentativeTargetParentId = parentInfoOfTargetItem ? parentInfoOfTargetItem.parent?.id : null; // null if targetItemId is a root item
+    }
+
+    // Validation 2: Prevent dropping an item to become a direct child of itself.
+    // This also covers the case: sourceId === targetItemId && dropPosition === 'inside'
+    if (sourceId === tentativeTargetParentId) {
+        console.warn("Native D&D: Cannot make an item a direct child of itself.");
+        setDropZoneHint(null);
+        return;
+    }
+
+    // Validation 3: Prevent dropping a parent item into one of its own descendants.
+    // Check if the `tentativeTargetParentId` is a descendant of `sourceId`.
+    if (tentativeTargetParentId) { // Only if the item is not being dropped at the root level next to other root items
+        let ancestorOfTentativeParent = window.StruMLApp.Utils.findParentItem(document.items, tentativeTargetParentId);
+        let currentAncestorIdForCheck = tentativeTargetParentId; 
+
+        while (currentAncestorIdForCheck) {
+            if (currentAncestorIdForCheck === sourceId) {
+                console.warn("Native D&D: Cannot move an item into its own descendant.");
+                setDropZoneHint(null);
+                return;
+            }
+            const parentInfo = window.StruMLApp.Utils.findParentItem(document.items, currentAncestorIdForCheck);
+            currentAncestorIdForCheck = parentInfo ? parentInfo.parent?.id : null;
+        }
+    }
+    
+    // If all validations pass, proceed to calculate final targetParentId and newIndex
+    let targetParentId = null; // This will be the final parent ID for reorderItems
+    let newIndex = 0;
+
+    if (dropPosition === POSITION_TYPES.INSIDE) {
+      targetParentId = targetItemId; // The item being dropped onto becomes the parent
+      const targetItemDetails = window.StruMLApp.Utils.findItemById(document.items, targetItemId);
+      newIndex = targetItemDetails?.items?.length || 0; // Append to end of children
+    } else if (dropPosition === POSITION_TYPES.BEFORE || dropPosition === POSITION_TYPES.AFTER) {
+      // Dropping as a sibling
+      const parentInfoOfTarget = window.StruMLApp.Utils.findParentItem(document.items, targetItemId);
+      targetParentId = parentInfoOfTarget ? parentInfoOfTarget.parent?.id : null; // null if target is a root item
+      const siblings = parentInfoOfTarget ? parentInfoOfTarget.parent.items : document.items;
+      const overIndex = siblings.findIndex(i => i.id === targetItemId);
+
+      if (overIndex === -1) { 
+        console.error("Native D&D Error: Target item for sibling drop not found in its collection.");
+        setDropZoneHint(null);
+        return;
+      }
+      newIndex = dropPosition === POSITION_TYPES.BEFORE ? overIndex : overIndex + 1;
+    } else {
+      // Fallback for undefined dropPosition (should ideally not happen if onDragOver/Leave are robust)
+      console.warn("Native D&D: Drop occurred without a clear drop zone hint. Attempting fallback to place after target.");
+      const parentInfoOfTarget = window.StruMLApp.Utils.findParentItem(document.items, targetItemId);
+      targetParentId = parentInfoOfTarget ? parentInfoOfTarget.parent?.id : null;
+      const siblings = parentInfoOfTarget ? parentInfoOfTarget.parent.items : document.items;
+      const overIndex = siblings.findIndex(i => i.id === targetItemId);
+      if (overIndex !== -1) {
+        newIndex = overIndex + 1;
+      } else { 
+        console.error("Native D&D Fallback Drop Error: Target item not found. Cannot determine drop position.");
+        setDropZoneHint(null);
+        return;
+      }
+    }
+    
+    // Final check to ensure sourceId is valid before reordering
+    if (sourceId) {
+        console.log(`Native D&D Reordering: sourceId=${sourceId}, targetParentId=${targetParentId}, newIndex=${newIndex}, dropPosition=${dropPosition}`);
+        reorderItems(sourceId, targetParentId, newIndex);
+    } else {
+        console.error("Native D&D Error: sourceId is missing, cannot reorder.");
+    }
+
+    setDropZoneHint(null);
+  };
+
+  const handleDragEnd = (event) => {
+    setIsBeingDragged(false);
+    setDropZoneHint(null); // Clean up visuals
+  };
+
+  // Dynamic style for the draggable item
+  const style = {
+    opacity: isBeingDragged ? 0.5 : 1,
+    position: 'relative', // For drop indicator positioning
+  };
   const hasChildren = item.items && item.items.length > 0;
   const isSelected = selectedItemId === item.id;
-  
   const isVisible = (currentItem) => {
     if (!filteredItems) return true;
     if (filteredItems.includes(currentItem.id)) return true;
@@ -412,331 +561,53 @@ const TreeItem = ({ item, level = 0, filteredItems }) => {
   
   const isHighlighted = filteredItems && filteredItems.includes(item.id);
   
-  const watchdogTimerRef = React.useRef(null);
-  
-  const resetDragDropStates = () => {
-    setIsDragging(false);
-    setDropPosition(null);
-    console.log('Drag-drop states reset for item:', item.title);
-  };
-  
-  const dragElementRef = React.useRef(null);
-  
-  React.useEffect(() => {
-    return () => {
-      if (watchdogTimerRef.current) {
-        clearTimeout(watchdogTimerRef.current);
+  // Handle keyboard navigation (remains unchanged)
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      // Select item
+      selectItem(item.id);
+    } else if (e.key === 'ArrowRight') {
+      // Expand item
+      if (hasVisibleChildren && !isExpanded) {
+        setIsExpanded(true);
       }
-    };
-  }, []);
-  
-  const handleDragStart = (e) => {
-    e.stopPropagation();
-    e.dataTransfer.setData('text/plain', String(item.id));
-    e.dataTransfer.effectAllowed = 'move';
-    
-    if (watchdogTimerRef.current) {
-      clearTimeout(watchdogTimerRef.current);
-      watchdogTimerRef.current = null;
-    }
-    
-    if (e.target && e.target.closest('.tree-item')) {
-      dragElementRef.current = e.target.closest('.tree-item').cloneNode(true);
-      
-      if (dragElementRef.current) {
-        dragElementRef.current.style.position = 'absolute';
-        dragElementRef.current.style.zIndex = '9999';
-        dragElementRef.current.style.opacity = '0.8';
-        dragElementRef.current.style.pointerEvents = 'none';
-        dragElementRef.current.style.width = e.target.closest('.tree-item').offsetWidth + "px";
-        dragElementRef.current.style.transform = 'translateY(-50%)';
-        dragElementRef.current.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-        
-        document.body.appendChild(dragElementRef.current);
-        
-        const updateOverlayPosition = (moveEvent) => {
-          if (dragElementRef.current) {
-            dragElementRef.current.style.left = moveEvent.clientX + 10 + "px";
-            dragElementRef.current.style.top = moveEvent.clientY + "px";
-          }
-        };
-        
-        document.addEventListener('dragover', updateOverlayPosition);
-        
-        const removeOverlay = () => {
-          if (dragElementRef.current && dragElementRef.current.parentNode) {
-            dragElementRef.current.parentNode.removeChild(dragElementRef.current);
-            dragElementRef.current = null;
-          }
-          document.removeEventListener('dragover', updateOverlayPosition);
-          document.removeEventListener('dragend', removeOverlay);
-          document.removeEventListener('drop', removeOverlay);
-        };
-        
-        document.addEventListener('dragend', removeOverlay);
-        document.addEventListener('drop', removeOverlay);
+    } else if (e.key === 'ArrowLeft') {
+      // Collapse item
+      if (isExpanded) {
+        setIsExpanded(false);
       }
     }
-    
-    setTimeout(() => {
-      setIsDragging(true);
-    }, 0);
-    
-    console.log('Drag started for item:', item.title);
-    
-    watchdogTimerRef.current = setTimeout(() => {
-      console.log('Watchdog: Forcing drag-drop state reset');
-      resetDragDropStates();
-    }, 3000);
-  };
-  
-  const handleDragEnd = (e) => {
-    if (watchdogTimerRef.current) {
-      clearTimeout(watchdogTimerRef.current);
-      watchdogTimerRef.current = null;
-    }
-    
-    setTimeout(() => {
-      resetDragDropStates();
-    }, 100);
-    
-    console.log('Drag ended for item:', item.title);
-  };
-  
-  const [stableDropPosition, setStableDropPosition] = React.useState(null);
-  const debounceTimerRef = React.useRef(null);
-  const lockTimerRef = React.useRef(null);
-  const [positionLocked, setPositionLocked] = React.useState(false);
-  
-  const updateDropPositionWithDebounce = (position) => {
-    if (positionLocked) return;
-    if (position === 'inside') {
-      setPositionLocked(true);
-      setDropPosition('inside');
-      setStableDropPosition('inside');
-      
-      if (lockTimerRef.current) {
-        clearTimeout(lockTimerRef.current);
-      }
-      lockTimerRef.current = setTimeout(() => {
-        setPositionLocked(false);
-      }, 1000);
-      
-      return;
-    }
-    
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-    
-    debounceTimerRef.current = setTimeout(() => {
-      setDropPosition(position);
-      setStableDropPosition(position);
-    }, 100);
-  };
-  
-  React.useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-      if (lockTimerRef.current) {
-        clearTimeout(lockTimerRef.current);
-      }
-    };
-  }, []);
-  
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (isDragging) return;
-    
-    const rect = e.currentTarget.getBoundingClientRect();
-    const mouseY = e.clientY;
-    const relativeY = mouseY - rect.top;
-    
-    const insideThreshold = 0.6;
-    
-    if (stableDropPosition === 'inside' && 
-        relativeY > rect.height * 0.2 && 
-        relativeY < rect.height * 0.8) {
-      updateDropPositionWithDebounce('inside');
-    } else if (relativeY < rect.height * ((1 - insideThreshold) / 2)) {
-      updateDropPositionWithDebounce('before');
-    } else if (relativeY > rect.height * (1 - (1 - insideThreshold) / 2)) {
-      updateDropPositionWithDebounce('after');
-    } else {
-      updateDropPositionWithDebounce('inside');
-    }
-    
-    e.dataTransfer.dropEffect = 'move';
-  };
-  
-  const handleDragLeave = (e) => {
-    if (!positionLocked) {
-      const relatedTarget = e.relatedTarget;
-      if (!e.currentTarget.contains(relatedTarget)) {
-        if (debounceTimerRef.current) {
-          clearTimeout(debounceTimerRef.current);
-        }
-        debounceTimerRef.current = setTimeout(() => {
-          setDropPosition(null);
-          setStableDropPosition(null);
-        }, 100);
-      }
-    }
-  };
-  
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (watchdogTimerRef.current) {
-      clearTimeout(watchdogTimerRef.current);
-      watchdogTimerRef.current = null;
-    }
-    
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = null;
-    }
-    
-    if (lockTimerRef.current) {
-      clearTimeout(lockTimerRef.current);
-      lockTimerRef.current = null;
-    }
-    
-    setPositionLocked(false);
-    
-    const finalDropPosition = stableDropPosition || dropPosition;
-    
-    console.log('Drop detected for item:', item.title, 'at position:', finalDropPosition);
-    
-    let jsonData = null;
-    try {
-      const jsonString = e.dataTransfer.getData('application/json');
-      if (jsonString) {
-        jsonData = JSON.parse(jsonString);
-      }
-    } catch (error) {
-      console.error('Error parsing JSON data:', error);
-    }
-    
-    if (jsonData) {
-      let targetParentId = null;
-      
-      if (finalDropPosition === 'inside') {
-        targetParentId = item.id;
-      } else {
-        const parentInfo = window.StruMLApp.DndUtils.findParentItem(document.items, item.id);
-        if (parentInfo) {
-          targetParentId = parentInfo.parent ? parentInfo.parent.id : null;
-        } else {
-          targetParentId = null;
-        }
-      }
-      
-      const newItem = {
-        id: window.StruMLApp.Utils.generateId(),
-        title: jsonData.title || "New Item",
-        content: jsonData.content || "",
-        tags: jsonData.tags || "",
-        items: []
-      };
-      
-      if (jsonData.items && Array.isArray(jsonData.items)) {
-        newItem.items = jsonData.items.map(childItem => ({
-          id: window.StruMLApp.Utils.generateId(),
-          title: childItem.title || "Child Item",
-          content: childItem.content || "",
-          tags: childItem.tags || "",
-          items: []
-        }));
-      }
-      
-      actions.createItem(targetParentId, newItem);
-      window.StruMLApp.Utils.showAlert(`Added "${newItem.title}" to the document`, "success");
-      
-    } else {
-      const draggedItemId = String(e.dataTransfer.getData('text/plain'));
-      if (!draggedItemId || draggedItemId === item.id) {
-        setDropPosition(null);
-        return;
-      }
-      
-      const draggedItem = window.StruMLApp.DndUtils.findItemById(document.items, draggedItemId)?.item;
-      if (!draggedItem) {
-        setDropPosition(null);
-        return;
-      }
-      
-      if (!window.StruMLApp.DndUtils.canDropItem(document.items, draggedItemId, item.id)) {
-        setDropPosition(null);
-        return;
-      }
-      
-      let targetParentId = null;
-      let newIndex = 0;
-      
-      if (finalDropPosition === 'inside') {
-        targetParentId = item.id;
-        newIndex = 0;
-      } else {
-        const parentInfo = window.StruMLApp.DndUtils.findParentItem(document.items, item.id);
-        if (parentInfo) {
-          targetParentId = parentInfo.parent ? parentInfo.parent.id : null;
-          newIndex = finalDropPosition === 'before' ? parentInfo.index : parentInfo.index + 1;
-        } else {
-          targetParentId = null;
-          const topLevelIndex = document.items.findIndex(i => i.id === item.id);
-          newIndex = finalDropPosition === 'before' ? topLevelIndex : topLevelIndex + 1;
-        }
-      }
-      
-      window.StruMLApp.DndUtils.confirmItemMove(
-        draggedItem,
-        targetParentId ? window.StruMLApp.DndUtils.findItemById(document.items, targetParentId)?.item : null,
-        () => {
-          reorderItems(draggedItemId, targetParentId, newIndex);
-          window.StruMLApp.Utils.showAlert(`Item "${draggedItem.title}" moved successfully.`, "success");
-        },
-        () => {
-          window.StruMLApp.Utils.showAlert("Move cancelled.", "info");
-        }
-      );
-    }
-    
-    setDropPosition(null);
   };
   
   return (
-    <div>
+    <div className={`tree-item-container ${isBeingDragged ? 'dragging-native' : ''}`}>
+      {/* Drop zone for BEFORE position */}
       <div 
-        className={'tree-item flex items-center px-2 py-1 cursor-pointer ' +
-          (isSelected ? 'selected ' : '') +
-          (isHighlighted ? 'bg-blue-50 ' : '') +
-          (isDragging ? 'is-dragging ' : '') +
-          (dropPosition ? ('drop-' + dropPosition) : '')
-        }
-        style={{ paddingLeft: (level * 16 + 8) + "px" }}
-        onClick={handleSelect}
+        className={`drop-zone drop-zone-before ${dropZoneHint === POSITION_TYPES.BEFORE ? 'active' : ''}`}
+      >
+        {dropZoneHint === POSITION_TYPES.BEFORE && (
+          <div className="drop-indicator before"></div>
+        )}
+      </div>
+      
+      <div 
+        draggable="true"
+        onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        onDragEnd={handleDragEnd}
+        className={`tree-item flex items-center px-2 py-1 cursor-pointer ${isSelected ? 'selected' : ''} ${isHighlighted ? 'bg-blue-50' : ''} ${isBeingDragged ? 'opacity-50' : ''}`}
+        style={{ ...style, paddingLeft: `${level * 16 + 8}px` }} // Keep existing style for padding
+        onClick={handleSelect} // Keep existing select logic
+        onKeyDown={handleKeyDown} // Keep existing keyboard nav
         data-item-id={item.id}
+        aria-label={`Item: ${item.title}`}
+        role="treeitem" // Standard ARIA role
+        tabIndex={0} 
       >
-        {dropPosition && (
-          <div className={'drop-indicator ' + dropPosition + ' ' + (dropPosition === 'inside' ? 'active' : '')}></div>
-        )}
-        
-        <div 
-          className="drag-handle mr-1"
-          draggable="true"
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          title="Drag from here"
-        >
+        {/* Native Drag Handle (Optional - entire item is draggable) */}
+         <div className="drag-handle mr-1" title="Drag to reorder"> {/* Simple visual cue */}
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-grip-vertical" viewBox="0 0 16 16">
             <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
           </svg>
@@ -749,7 +620,7 @@ const TreeItem = ({ item, level = 0, filteredItems }) => {
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
-className={'h-3 w-3 transform ' + (isExpanded ? 'rotate-90' : '')}
+              className={`h-3 w-3 transform ${isExpanded ? 'rotate-90' : ''}`} 
               viewBox="0 0 20 20" 
               fill="currentColor"
             >
@@ -764,12 +635,27 @@ className={'h-3 w-3 transform ' + (isExpanded ? 'rotate-90' : '')}
             ({item.items.length})
           </span>
         )}
+        
+        {/* Visual drop indicator for INSIDE */}
+        {dropZoneHint === POSITION_TYPES.INSIDE && (
+             <div className="drop-indicator inside active"></div>
+        )}
       </div>
       
+      {/* Drop zone for AFTER position */}
+      <div 
+        className={`drop-zone drop-zone-after ${dropZoneHint === POSITION_TYPES.AFTER ? 'active' : ''}`}
+      >
+        {dropZoneHint === POSITION_TYPES.AFTER && (
+          <div className="drop-indicator after"></div>
+        )}
+      </div>
+      
+      {/* Render children if expanded */}
       {hasVisibleChildren && isExpanded && (
-        <div>
+        <div className="tree-item-children"> {/* Wrapper for children for potential sortable context if needed */}
           {visibleChildren.map(childItem => (
-            <TreeItem 
+            <TreeItem // Recursive call to TreeItem
               key={childItem.id} 
               item={childItem} 
               level={level + 1}
@@ -781,15 +667,21 @@ className={'h-3 w-3 transform ' + (isExpanded ? 'rotate-90' : '')}
     </div>
   );
 };
+window.StruMLApp.Components = window.StruMLApp.Components || {};
+window.StruMLApp.Components.TreeItem = TreeItem;
 
 // Sidebar component
 const Sidebar = () => {
   const { state, actions } = useAppContext();
   const { document, filteredItems, showTagFilter } = state;
-  const { createItem, toggleTagFilter } = actions;
+  // Removed reorderItems from actions here as it's called within TreeItem's onDrop
+  const { createItem, toggleTagFilter } = actions; 
   
   const [allExpanded, setAllExpanded] = React.useState(true);
-  
+
+  // DndKit specific code (DndContext, sensors, handleDragEnd) is removed.
+  // Native HTML5 D&D is handled by individual TreeItem components.
+
   const isItemVisible = (item) => {
     if (!filteredItems) return true;
     const isVisible = (currentItem) => {
@@ -876,12 +768,14 @@ const Sidebar = () => {
       
       {showTagFilter && <TagFilter />}
       
+      {/* DndContext wrapper is removed */}
       <div className="py-2 flex-1 overflow-y-auto">
         {visibleItems.map(item => (
           <TreeItem 
             key={item.id} 
             item={item} 
             filteredItems={filteredItems}
+            // document and actions are passed implicitly via useAppContext within TreeItem
           />
         ))}
         {visibleItems.length === 0 && (
@@ -947,6 +841,7 @@ const ItemView = ({ item }) => {
   const { state, actions } = useAppContext();
   const { document, isChatbotOpen } = state;
   const { startEditingItem, deleteItem, createItem, selectItem, toggleChatbot } = actions;
+  const ItemBadge = window.StruMLApp.Components.ItemBadge; // Access ItemBadge
   
   const handleEdit = () => {
     startEditingItem(item.id);
@@ -1022,10 +917,23 @@ const ItemView = ({ item }) => {
       <TagsList tagsString={item.tags} />
       
       {item.content && (
-        <div 
-          className="markdown-content mt-4 prose"
-          dangerouslySetInnerHTML={{ __html: window.StruMLApp.Utils.renderMarkdown(item.content) }}
-        ></div>
+        <div className="markdown-content mt-4 prose prose-sm"> {/* Apply prose to the main container */}
+          {window.StruMLApp.Utils.parseContentForLinks(item.content).map((segment, index) => {
+            if (segment.type === 'text') {
+              // Markdown text is rendered directly because the parent has .prose
+              // Using a span to avoid block behavior that a div would introduce
+              return (
+                <span 
+                  key={index} 
+                  dangerouslySetInnerHTML={{ __html: window.StruMLApp.Utils.renderMarkdown(segment.value) }} 
+                />
+              );
+            } else if (segment.type === 'itemLink') {
+              return <ItemBadge key={index} targetItemTitle={segment.title} />;
+            }
+            return null;
+          })}
+        </div>
       )}
       
       <ItemViewMermaid item={item} />

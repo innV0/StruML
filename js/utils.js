@@ -256,6 +256,33 @@ window.StruMLApp.Utils.findItemByTitle = (items, title) => {
 };
 
 /**
+ * Find the parent of an item and its index within the parent's items array.
+ * @param {Array} items - The array of items to search (usually document.items).
+ * @param {string} itemId - The ID of the item whose parent is to be found.
+ * @returns {Object|null} An object { parent: parentItem, index: itemIndex } or null if not found or root.
+ */
+window.StruMLApp.Utils.findParentItem = (items, itemId) => {
+  if (!items || !itemId) return null;
+
+  for (const parentCandidate of items) {
+    if (parentCandidate.items && parentCandidate.items.length > 0) {
+      const itemIndex = parentCandidate.items.findIndex(child => child.id === itemId);
+      if (itemIndex !== -1) {
+        return { parent: parentCandidate, index: itemIndex };
+      }
+      // Recursively search in children's items
+      const foundInChild = window.StruMLApp.Utils.findParentItem(parentCandidate.items, itemId);
+      if (foundInChild) {
+        return foundInChild;
+      }
+    }
+  }
+  // If the loop finishes, it means the itemId was not found as a child in the current list of items.
+  // It could be a root item, or not exist. If it's a root item, it has no parent.
+  return null; 
+};
+
+/**
  * Create a new empty item
  * @param {string} parentId - Optional parent ID
  * @returns {Object} A new item object
@@ -838,6 +865,41 @@ window.StruMLApp.Utils.processWebhookResponse = (responseData) => {
     };
   }
 };
+
+/**
+ * Parses text content to identify plain text segments and special [[Link]] syntax.
+ * @param {string} textContent - The raw content to parse.
+ * @returns {Array<Object>} An array of objects representing segments.
+ *                          Each object has a `type` ('text' or 'itemLink')
+ *                          and a 'value' or 'title' property.
+ */
+window.StruMLApp.Utils.parseContentForLinks = (textContent) => {
+  if (!textContent) return [];
+
+  const segments = [];
+  const regex = /\[\[(.*?)\]\]/g; // Captures the title part in group 1
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(textContent)) !== null) {
+    // Add text before the link
+    if (match.index > lastIndex) {
+      segments.push({ type: 'text', value: textContent.substring(lastIndex, match.index) });
+    }
+    // Add the link
+    // match[0] is the full [[Title]], match[1] is just Title
+    segments.push({ type: 'itemLink', title: match[1] }); 
+    lastIndex = regex.lastIndex;
+  }
+
+  // Add any remaining text after the last link
+  if (lastIndex < textContent.length) {
+    segments.push({ type: 'text', value: textContent.substring(lastIndex) });
+  }
+
+  return segments;
+};
+
 
 // ====================================
 // TEMPLATE HANDLING
