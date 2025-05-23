@@ -925,7 +925,7 @@ const ItemView = ({ item }) => {
               return (
                 <span 
                   key={index} 
-                  dangerouslySetInnerHTML={{ __html: window.StruMLApp.Utils.renderMarkdown(segment.value) }} 
+                  dangerouslySetInnerHTML={{ __html: window.StruMLApp.Utils.renderMarkdownInline(segment.value) }} 
                 />
               );
             } else if (segment.type === 'itemLink') {

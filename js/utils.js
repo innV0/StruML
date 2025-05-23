@@ -83,6 +83,31 @@ window.StruMLApp.Utils.showAlert = (message, type = 'success', duration = 3000) 
 };
 
 /**
+ * Sanitize and render INLINE markdown content.
+ * @param {string} text - The markdown text to render as inline.
+ * @returns {string} Sanitized HTML, suitable for inline display.
+ */
+window.StruMLApp.Utils.renderMarkdownInline = (text) => {
+  if (!text) return '';
+  try {
+    if (typeof window.marked?.parseInline === 'function') {
+      const rawHtml = window.marked.parseInline(text);
+      return DOMPurify.sanitize(rawHtml);
+    } else {
+      // Log an error because the expected inline parser is not available
+      const errorMsg = 'marked.parseInline is not available. Cannot render inline Markdown.';
+      console.error(errorMsg); 
+      // Fallback to returning sanitized text, without using marked.parse()
+      return DOMPurify.sanitize(text); 
+    }
+  } catch (error) {
+    // Log any other unexpected errors during parsing or sanitization
+    window.StruMLApp.Utils.logError('renderMarkdownInline', error);
+    return DOMPurify.sanitize(text); // Sanitize original text on error
+  }
+};
+
+/**
  * Centralized error logging function
  * @param {string} context - The context where the error occurred
  * @param {Error} error - The error object
