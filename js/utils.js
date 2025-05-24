@@ -13,10 +13,14 @@ window.StruMLApp = window.StruMLApp || {};
 window.StruMLApp.Utils = {};
 
 // Configure Marked.js with the Wikilink extension
+console.log('[utils.js] Attempting to configure Marked.js. Wikilink extension available:', !!(window.StruMLApp && window.StruMLApp.MarkedExtensions && window.StruMLApp.MarkedExtensions.wikilink));
 if (window.marked && window.StruMLApp && window.StruMLApp.MarkedExtensions && window.StruMLApp.MarkedExtensions.wikilink) {
-  window.marked.use(window.StruMLApp.MarkedExtensions.wikilink);
+  window.marked.use({
+    extensions: [window.StruMLApp.MarkedExtensions.wikilink]
+  });
+  console.log('[utils.js] Marked.js configured with Wikilink extension (using extensions array).');
 } else {
-  console.error('Marked library or Wikilink extension not found. Wikilinks may not work.');
+  console.error('[utils.js] Marked library or Wikilink extension not found. Wikilinks may not work.');
 }
 window.StruMLApp.Utils.getSampleItem = function() {
   return {
@@ -95,10 +99,12 @@ window.StruMLApp.Utils.showAlert = (message, type = 'success', duration = 3000) 
  * @returns {string} Sanitized HTML, suitable for inline display.
  */
 window.StruMLApp.Utils.renderMarkdownInline = (text) => {
+  console.log('[utils.js renderMarkdownInline] Input text:', text);
   if (!text) return '';
   try {
     if (typeof window.marked?.parseInline === 'function') {
       const rawHtml = window.marked.parseInline(text);
+      console.log('[utils.js renderMarkdownInline] Raw HTML from marked.parseInline():', rawHtml);
       return DOMPurify.sanitize(rawHtml);
     } else {
       // Log an error because the expected inline parser is not available
@@ -141,10 +147,14 @@ window.StruMLApp.Utils.logError = (context, error, showToUser = false) => {
  * @returns {string} Sanitized HTML
  */
 window.StruMLApp.Utils.renderMarkdown = (content) => {
+  console.log('[utils.js renderMarkdown] Input content:', content);
   if (!content) return '';
   try {
     const rawHtml = marked.parse(content);
-    return DOMPurify.sanitize(rawHtml);
+    console.log('[utils.js renderMarkdown] Raw HTML from marked.parse():', rawHtml);
+    const sanitizedHtml = DOMPurify.sanitize(rawHtml);
+    console.log('[utils.js renderMarkdown] HTML after DOMPurify:', sanitizedHtml);
+    return sanitizedHtml;
   } catch (error) {
     window.StruMLApp.Utils.logError('renderMarkdown', error);
     return `<p class="text-red-500">Error rendering markdown: ${error.message}</p>`;

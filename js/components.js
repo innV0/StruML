@@ -853,15 +853,18 @@ const ItemView = ({ item }) => {
   const mountedBadgeRoots = React.useRef([]);
 
   React.useEffect(() => {
+    console.log('[ItemView useEffect] Running for item.id:', item.id, 'Content changed:', item.content);
     // Clear out previously mounted badges
     mountedBadgeRoots.current.forEach(root => root.unmount());
     mountedBadgeRoots.current = [];
 
     if (item.content && contentRef.current) {
       const placeholders = contentRef.current.querySelectorAll('.item-badge-placeholder');
+      console.log('[ItemView useEffect] Placeholders found:', placeholders);
 
       placeholders.forEach(placeholder => {
         const title = placeholder.dataset.itemTitle;
+        console.log('[ItemView useEffect] Processing placeholder for title:', title, 'Element:', placeholder);
         if (title) {
           // Ensure the placeholder is empty before rendering into it
           // This is important if the placeholder itself was part of the dangerouslySetInnerHTML content
@@ -869,7 +872,9 @@ const ItemView = ({ item }) => {
             placeholder.removeChild(placeholder.firstChild);
           }
           const root = ReactDOM.createRoot(placeholder);
-          root.render(<ItemBadge targetItemTitle={title} />);
+          console.log('[ItemView useEffect] Rendering ItemBadge for title:', title, 'into placeholder:', placeholder);
+          // Pass document and selectItem as props
+          root.render(<ItemBadge targetItemTitle={title} document={document} selectItem={selectItem} />);
           mountedBadgeRoots.current.push(root);
         }
       });
@@ -899,6 +904,9 @@ const ItemView = ({ item }) => {
     toggleChatbot();
   };
   
+  const htmlToRender = item.content ? window.StruMLApp.Utils.renderMarkdown(item.content) : '';
+  console.log('[ItemView] HTML content to render with dangerouslySetInnerHTML:', htmlToRender);
+
   return (
     <div className="p-4">
       <Breadcrumbs item={item} document={document} />
@@ -958,7 +966,7 @@ const ItemView = ({ item }) => {
         <div
           ref={contentRef}
           className="markdown-content mt-4 prose prose-sm"
-          dangerouslySetInnerHTML={{ __html: window.StruMLApp.Utils.renderMarkdown(item.content) }}
+          dangerouslySetInnerHTML={{ __html: htmlToRender }}
         />
       )}
       
