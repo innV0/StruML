@@ -356,9 +356,15 @@ const Tag = ({ tag }) => {
 
 // Tags list component
 const TagsList = ({ tagsString }) => {
-  const tags = window.StruMLApp.Utils.parseTags(tagsString);
+  let tags = window.StruMLApp.Utils.parseTags(tagsString); // Changed to let
   
   if (!tags.length) return null;
+
+  // Filter out tags that start with '(' and end with ')'
+  tags = tags.filter(tag => !(tag.full.startsWith('(') && tag.full.endsWith(')'))); // Added filter
+
+  // If all tags are filtered out, return null
+  if (!tags.length) return null; 
   
   return (
     <div className="flex flex-wrap mt-1">
