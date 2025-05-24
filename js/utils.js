@@ -15,8 +15,10 @@ window.StruMLApp.Utils = {};
 // Configure Marked.js with the Wikilink extension
 console.log('[utils.js] Attempting to configure Marked.js. Wikilink extension available:', !!(window.StruMLApp && window.StruMLApp.MarkedExtensions && window.StruMLApp.MarkedExtensions.wikilink));
 if (window.marked && window.StruMLApp && window.StruMLApp.MarkedExtensions && window.StruMLApp.MarkedExtensions.wikilink) {
-  window.marked.use(window.StruMLApp.MarkedExtensions.wikilink);
-  console.log('[utils.js] Marked.js configured with Wikilink extension.');
+  window.marked.use({
+    extensions: [window.StruMLApp.MarkedExtensions.wikilink]
+  });
+  console.log('[utils.js] Marked.js configured with Wikilink extension (using extensions array).');
 } else {
   console.error('[utils.js] Marked library or Wikilink extension not found. Wikilinks may not work.');
 }
