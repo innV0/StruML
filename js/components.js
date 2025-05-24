@@ -873,7 +873,8 @@ const ItemView = ({ item }) => {
           }
           const root = ReactDOM.createRoot(placeholder);
           console.log('[ItemView useEffect] Rendering ItemBadge for title:', title, 'into placeholder:', placeholder);
-          root.render(<ItemBadge targetItemTitle={title} />);
+          // Pass document and selectItem as props
+          root.render(<ItemBadge targetItemTitle={title} document={document} selectItem={selectItem} />);
           mountedBadgeRoots.current.push(root);
         }
       });

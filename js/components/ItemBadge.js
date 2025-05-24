@@ -1,7 +1,7 @@
-const ItemBadge = ({ targetItemTitle }) => {
-  const { state, actions } = useAppContext();
-  const { document } = state;
-  const { selectItem } = actions;
+const ItemBadge = ({ targetItemTitle, document, selectItem }) => { // document and selectItem are now props
+  // const { state, actions } = useAppContext(); // REMOVE this
+  // const { document } = state; // REMOVE this
+  // const { selectItem } = actions; // REMOVE this
 
   const [showPopover, setShowPopover] = React.useState(false);
   const [popoverPosition, setPopoverPosition] = React.useState({ top: 0, left: 0 });
