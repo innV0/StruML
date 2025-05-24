@@ -83,6 +83,31 @@ window.StruMLApp.Utils.showAlert = (message, type = 'success', duration = 3000) 
 };
 
 /**
+ * Sanitize and render INLINE markdown content.
+ * @param {string} text - The markdown text to render as inline.
+ * @returns {string} Sanitized HTML, suitable for inline display.
+ */
+window.StruMLApp.Utils.renderMarkdownInline = (text) => {
+  if (!text) return '';
+  try {
+    if (typeof window.marked?.parseInline === 'function') {
+      const rawHtml = window.marked.parseInline(text);
+      return DOMPurify.sanitize(rawHtml);
+    } else {
+      // Log an error because the expected inline parser is not available
+      const errorMsg = 'marked.parseInline is not available. Cannot render inline Markdown.';
+      console.error(errorMsg); 
+      // Fallback to returning sanitized text, without using marked.parse()
+      return DOMPurify.sanitize(text); 
+    }
+  } catch (error) {
+    // Log any other unexpected errors during parsing or sanitization
+    window.StruMLApp.Utils.logError('renderMarkdownInline', error);
+    return DOMPurify.sanitize(text); // Sanitize original text on error
+  }
+};
+
+/**
  * Centralized error logging function
  * @param {string} context - The context where the error occurred
  * @param {Error} error - The error object
@@ -865,6 +890,41 @@ window.StruMLApp.Utils.processWebhookResponse = (responseData) => {
     };
   }
 };
+
+/**
+ * Parses text content to identify plain text segments and special [[Link]] syntax.
+ * @param {string} textContent - The raw content to parse.
+ * @returns {Array<Object>} An array of objects representing segments.
+ *                          Each object has a `type` ('text' or 'itemLink')
+ *                          and a 'value' or 'title' property.
+ */
+window.StruMLApp.Utils.parseContentForLinks = (textContent) => {
+  if (!textContent) return [];
+
+  const segments = [];
+  const regex = /\[\[(.*?)\]\]/g; // Captures the title part in group 1
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(textContent)) !== null) {
+    // Add text before the link
+    if (match.index > lastIndex) {
+      segments.push({ type: 'text', value: textContent.substring(lastIndex, match.index) });
+    }
+    // Add the link
+    // match[0] is the full [[Title]], match[1] is just Title
+    segments.push({ type: 'itemLink', title: match[1] }); 
+    lastIndex = regex.lastIndex;
+  }
+
+  // Add any remaining text after the last link
+  if (lastIndex < textContent.length) {
+    segments.push({ type: 'text', value: textContent.substring(lastIndex) });
+  }
+
+  return segments;
+};
+
 
 // ====================================
 // TEMPLATE HANDLING
