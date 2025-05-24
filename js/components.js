@@ -848,6 +848,38 @@ const ItemView = ({ item }) => {
   const { document, isChatbotOpen } = state;
   const { startEditingItem, deleteItem, createItem, selectItem, toggleChatbot } = actions;
   const ItemBadge = window.StruMLApp.Components.ItemBadge; // Access ItemBadge
+
+  const contentRef = React.useRef(null);
+  const mountedBadgeRoots = React.useRef([]);
+
+  React.useEffect(() => {
+    // Clear out previously mounted badges
+    mountedBadgeRoots.current.forEach(root => root.unmount());
+    mountedBadgeRoots.current = [];
+
+    if (item.content && contentRef.current) {
+      const placeholders = contentRef.current.querySelectorAll('.item-badge-placeholder');
+
+      placeholders.forEach(placeholder => {
+        const title = placeholder.dataset.itemTitle;
+        if (title) {
+          // Ensure the placeholder is empty before rendering into it
+          // This is important if the placeholder itself was part of the dangerouslySetInnerHTML content
+          while (placeholder.firstChild) {
+            placeholder.removeChild(placeholder.firstChild);
+          }
+          const root = ReactDOM.createRoot(placeholder);
+          root.render(<ItemBadge targetItemTitle={title} />);
+          mountedBadgeRoots.current.push(root);
+        }
+      });
+    }
+
+    return () => {
+      mountedBadgeRoots.current.forEach(root => root.unmount());
+      mountedBadgeRoots.current = [];
+    };
+  }, [item.id, item.content]); // Re-run when item or its content changes
   
   const handleEdit = () => {
     startEditingItem(item.id);
@@ -923,23 +955,11 @@ const ItemView = ({ item }) => {
       <TagsList tagsString={item.tags} />
       
       {item.content && (
-        <div className="markdown-content mt-4 prose prose-sm"> {/* Apply prose to the main container */}
-          {window.StruMLApp.Utils.parseContentForLinks(item.content).map((segment, index) => {
-            if (segment.type === 'text') {
-              // Markdown text is rendered directly because the parent has .prose
-              // Using a span to avoid block behavior that a div would introduce
-              return (
-                <span 
-                  key={index} 
-                  dangerouslySetInnerHTML={{ __html: window.StruMLApp.Utils.renderMarkdownInline(segment.value) }} 
-                />
-              );
-            } else if (segment.type === 'itemLink') {
-              return <ItemBadge key={index} targetItemTitle={segment.title} />;
-            }
-            return null;
-          })}
-        </div>
+        <div
+          ref={contentRef}
+          className="markdown-content mt-4 prose prose-sm"
+          dangerouslySetInnerHTML={{ __html: window.StruMLApp.Utils.renderMarkdown(item.content) }}
+        />
       )}
       
       <ItemViewMermaid item={item} />
