@@ -1,5 +1,13 @@
 Your task is to suggest child items for the parent item titled '{{itemTitle}}'.
 
+### SAMPLE_ITEM
+
+This is an example of the expected JSON output structure. Replicate this structure and detail level if applicable to the request.
+
+{{#sample_item_block}}
+{{{sampleItem}}}
+{{/sample_item_block}}
+
 Based on ALL the context (description, document structure, and the sample item example), suggest appropriate child items for the parent item '{{itemTitle}}'.
 - Your response MUST be ONLY a valid JSON object with a single field "items" containing an array of suggested child items.
 - Each child item should have "title" and "content" fields. You may optionally include a "tags" field if appropriate.
@@ -20,3 +28,4 @@ Example response format:
     }
   ]
 }
+```

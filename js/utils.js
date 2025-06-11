@@ -22,14 +22,101 @@ if (window.marked && window.StruMLApp && window.StruMLApp.MarkedExtensions && wi
 } else {
   console.error('[utils.js] Marked library or Wikilink extension not found. Wikilinks may not work.');
 }
-window.StruMLApp.Utils.getSampleItem = function() {
-  return {
-      id: "sample_" + Date.now(),
-      title: "Sample Item",
-      content: "Sample content",
-      tags: "",
-      items: []
+
+window.StruMLApp.Utils.getSampleItem = async function(itemTitle, itemClass) {
+  const fallbackItem = {
+    id: "sample_" + Date.now(),
+    title: "Sample Item (Fallback)",
+    content: "No specific example found in metamodel.",
+    tags: "",
+    items: []
   };
+
+  function findItemInMetamodel(items, titleToFind, classToFind) {
+    let targetItem = null;
+    function search(currentItems) {
+      if (!currentItems || !Array.isArray(currentItems)) return;
+      for (const item of currentItems) {
+        if (item.title === titleToFind) {
+          targetItem = item;
+          return;
+        }
+      }
+      if (!targetItem) {
+        for (const item of currentItems) {
+          if (item.title === classToFind) {
+            targetItem = item;
+            return;
+          }
+        }
+      }
+      if (!targetItem) {
+        for (const item of currentItems) {
+          if (item.items && item.items.length > 0) {
+            search(item.items);
+            if (targetItem) return;
+          }
+        }
+      }
+    }
+    search(items);
+    return targetItem;
+  }
+
+  try {
+    const metamodelPath = `./metamodels/${window.StruMLConfig.METAMODEL}/metamodel.struml.json`;
+    console.log(`[getSampleItem] Fetching metamodel from: ${metamodelPath}`);
+    const response = await fetch(metamodelPath);
+
+    if (!response.ok) {
+      console.error(`[getSampleItem] Failed to fetch metamodel. Status: ${response.status}`);
+      return fallbackItem;
+    }
+
+    const metamodel = await response.json();
+    console.log("[getSampleItem] Metamodel fetched successfully.");
+
+    if (!metamodel || !metamodel.items) {
+      console.error("[getSampleItem] Metamodel is invalid or has no items.");
+      return fallbackItem;
+    }
+
+    const foundItem = findItemInMetamodel(metamodel.items, itemTitle, itemClass);
+
+    if (foundItem) {
+      console.log(`[getSampleItem] Found item in metamodel: ${foundItem.title}`);
+      if (foundItem.example && typeof foundItem.example === 'string' && foundItem.example.trim() !== "") {
+        try {
+          const parsedExample = JSON.parse(foundItem.example);
+          console.log("[getSampleItem] Successfully parsed item.example.");
+          // Add a new ID to the parsed example to avoid duplicates if used multiple times
+          parsedExample.id = "sample_mm_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+          return parsedExample;
+        } catch (parseError) {
+          console.error("[getSampleItem] Failed to parse item.example JSON:", parseError, "Example string:", foundItem.example);
+          // Log error and return fallback, but modify content to indicate parsing failure
+          return {
+            ...fallbackItem,
+            title: `Sample Item (Parse Error)`,
+            content: `Found example for '${foundItem.title}' but failed to parse. Error: ${parseError.message}. Original example: ${foundItem.example.substring(0,100)}...`
+          };
+        }
+      } else {
+        console.warn(`[getSampleItem] Found item '${foundItem.title}' but it has no valid 'example' string.`);
+        return {
+            ...fallbackItem,
+            title: `Sample Item (No Example)`,
+            content: `No example string provided for item '${foundItem.title}' in metamodel.`
+        };
+      }
+    } else {
+      console.log(`[getSampleItem] No item found in metamodel matching title '${itemTitle}' or class '${itemClass}'.`);
+      return fallbackItem;
+    }
+  } catch (error) {
+    console.error("[getSampleItem] An error occurred:", error);
+    return fallbackItem;
+  }
 };
 
 // ====================================
@@ -799,7 +886,8 @@ window.StruMLApp.Utils.getItemInfo = async function(itemTitle) {
       if (!items || !Array.isArray(items)) return null;
       
       for (const item of items) {
-        if (item.title === title) {
+        // Case-insensitive comparison
+        if (item.title && title && item.title.toLowerCase() === title.toLowerCase()) {
           return item;
         }
         
@@ -816,9 +904,12 @@ window.StruMLApp.Utils.getItemInfo = async function(itemTitle) {
     const foundItem = findItemByTitle(metamodel.items, itemTitle);
     
     if (!foundItem) {
+      console.warn(`[getItemInfo] No matching item found in metamodel for title: ${itemTitle}`);
       return null;
     }
     
+    console.log(`[getItemInfo] Found matching item in metamodel: ${foundItem.title}`);
+
     // Concatenate summary and description in Markdown format
     let markdownContent = '';
     
