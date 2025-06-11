@@ -398,6 +398,7 @@ const ChatbotPanel = () => {
       // Create a summary of the complete item
       const itemTitle = jsonData.title || "Untitled Item";
       const itemContent = jsonData.content || "No content";
+      const safeItemContent = typeof itemContent === 'string' ? itemContent : (itemContent ? String(itemContent) : "No content");
       const itemTags = jsonData.tags || "No tags";
       const childItemCount = jsonData.items ? jsonData.items.length : 0;
       
@@ -421,7 +422,7 @@ const ChatbotPanel = () => {
       }
       
       // Create a complete description
-      const completeDescription = `**Title:** ${itemTitle}\n\n**Content Preview:**\n${itemContent.substring(0, 200)}${itemContent.length > 200 ? '...' : ''}\n\n**Tags:** ${itemTags}${itemStructureDescription}`;
+      const completeDescription = `**Title:** ${itemTitle}\n\n**Content Preview:**\n${safeItemContent.substring(0, 200)}${safeItemContent.length > 200 ? '...' : ''}\n\n**Tags:** ${itemTags}${itemStructureDescription}`;
       
       return (
         <div className="json-item-preview mt-3 border rounded p-3 bg-blue-50">
@@ -487,6 +488,8 @@ const ChatbotPanel = () => {
       }, 100);
     };
     
+    const contentPreview = typeof jsonData.content === 'string' ? jsonData.content : (jsonData.content ? String(jsonData.content) : "");
+
     return (
       <div className="json-item-preview mt-3 border rounded p-3 bg-blue-50">
         <div className="mb-3">
@@ -506,12 +509,12 @@ const ChatbotPanel = () => {
           })}
         </div>
         
-        {jsonData.content && (
+        {contentPreview && (
           <div className="mb-3">
             <span className="text-xs text-gray-500">Content Preview:</span>
             <div className="mt-1 p-2 bg-white rounded border border-gray-200 text-sm max-h-32 overflow-y-auto">
-              {jsonData.content.substring(0, 200)}
-              {jsonData.content.length > 200 ? '...' : ''}
+              {contentPreview.substring(0, 200)}
+              {contentPreview.length > 200 ? '...' : ''}
             </div>
             <button 
               onClick={() => handleAddJsonContent(jsonData)}
