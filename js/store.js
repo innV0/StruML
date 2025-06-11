@@ -440,9 +440,6 @@ const AppProvider = ({ children }) => {
         // Use the centralized utility function to process the webhook response
         const { responseMessage, jsonData } = window.StruMLApp.Utils.processWebhookResponse(responseData);
         
-        // Use the centralized utility function to process the webhook response
-        const { responseMessage, jsonData } = window.StruMLApp.Utils.processWebhookResponse(responseData);
-
         const aiMessageObject = {
           sender: 'chatbot',
           text: responseMessage,
