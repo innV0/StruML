@@ -139,34 +139,16 @@ const AppProvider = ({ children }) => {
       });
     },
     
-    loadChatHistory: (itemId) => {
-      const messages = window.StruMLApp.Utils.loadChatHistory(itemId);
-      setState(prevState => ({
-        ...prevState,
-        chatMessages: messages
-      }));
-    },
-    
     selectItem: (itemId) => {
       setState(prevState => {
-        // If the selected item changes, save the current chat history and load the new one
         if (prevState.selectedItemId !== itemId) {
-          // Save the current chat history
-          if (prevState.selectedItemId && prevState.chatMessages.length > 0) {
-            window.StruMLApp.Utils.saveChatHistory(prevState.selectedItemId, prevState.chatMessages);
-          }
-          
-          // Load the chat history for the new item
-          const messages = window.StruMLApp.Utils.loadChatHistory(itemId);
-          
           return {
             ...prevState,
             selectedItemId: itemId,
-            chatMessages: messages
+            chatMessages: [] // Reset chat messages for the new item
           };
         }
-        
-        return { ...prevState, selectedItemId: itemId };
+        return { ...prevState, selectedItemId: itemId }; // No change if same item
       });
     },
     
@@ -374,17 +356,11 @@ const AppProvider = ({ children }) => {
     
     sendChatMessage: async (message) => {
       // If no item is selected, the check is now handled in ChatbotPanel.js
-      // Add user message to chat and save to history
-      const updatedMessages = [...state.chatMessages, { sender: 'user', text: message }];
+      const userMessageObject = { sender: 'user', text: message, timestamp: Date.now() };
       setState(prevState => ({
         ...prevState,
-        chatMessages: updatedMessages
+        chatMessages: [userMessageObject]
       }));
-      
-      // Save chat history after adding user message
-      if (state.selectedItemId) {
-        window.StruMLApp.Utils.saveChatHistory(state.selectedItemId, updatedMessages);
-      }
       
       try {
         // Get the webhook URL from config
@@ -401,11 +377,6 @@ const AppProvider = ({ children }) => {
         
         if (!currentItem) {
           throw new Error("No item selected");
-        }
-        
-        // Generate a session ID if not already present
-        if (!window.chatSessionId) {
-          window.chatSessionId = generateUniqueId();
         }
         
         // Get additional information from metamodel and sample
@@ -429,7 +400,6 @@ const AppProvider = ({ children }) => {
         const inputData = {
           requestType: message.toLowerCase().includes('execute') ? message.substring(8) : 'custom request',
           message: message,
-          sessionId: window.chatSessionId,
           itemTitle: currentItem.title,
           context: {
             currentItem: {
@@ -470,26 +440,20 @@ const AppProvider = ({ children }) => {
         // Use the centralized utility function to process the webhook response
         const { responseMessage, jsonData } = window.StruMLApp.Utils.processWebhookResponse(responseData);
         
-        // Add AI response to chat and save to history
-        const updatedMessagesWithResponse = [
-          ...state.chatMessages,
-          { 
-            sender: 'chatbot', 
-            text: responseMessage,
-            jsonData: jsonData, // Store the JSON data with the message
-            timestamp: Date.now() // Add timestamp to ensure state change detection
-          }
-        ];
+        // Use the centralized utility function to process the webhook response
+        const { responseMessage, jsonData } = window.StruMLApp.Utils.processWebhookResponse(responseData);
+
+        const aiMessageObject = {
+          sender: 'chatbot',
+          text: responseMessage,
+          jsonData: jsonData, // Store the JSON data with the message
+          timestamp: Date.now() // Add timestamp to ensure state change detection
+        };
         
         setState(prevState => ({
           ...prevState,
-          chatMessages: updatedMessagesWithResponse
+          chatMessages: [userMessageObject, aiMessageObject]
         }));
-        
-        // Save chat history after adding AI response
-        if (state.selectedItemId) {
-          window.StruMLApp.Utils.saveChatHistory(state.selectedItemId, updatedMessagesWithResponse);
-        }
         
         // Process suggested items if available
         if (responseData && responseData.suggestedItems && 
@@ -517,10 +481,11 @@ const AppProvider = ({ children }) => {
           
           if (suggestedItems.length > 0) {
             // Add a message about the added items
+            // This will append to the [userMessageObject, aiMessageObject]
             setState(prevState => ({
               ...prevState,
               chatMessages: [
-                ...prevState.chatMessages,
+                ...prevState.chatMessages, // Should be [userMessageObject, aiMessageObject] at this point
                 { 
                   sender: 'chatbot', 
                   text: `Added ${suggestedItems.length} new items to "${currentItem.title}"`,
@@ -533,14 +498,15 @@ const AppProvider = ({ children }) => {
         
       } catch (error) {
         console.error('Error sending message:', error);
-        
-        // Add error message to chat
+        const aiMessageObject = {
+          sender: 'chatbot',
+          text: `Sorry, there was an error processing your request: ${error.message}`,
+          timestamp: Date.now()
+        };
+        // Add error message to chat, maintaining the [user, AI error] structure
         setState(prevState => ({
           ...prevState,
-          chatMessages: [
-            ...prevState.chatMessages,
-            { sender: 'chatbot', text: `Sorry, there was an error processing your request: ${error.message}` }
-          ]
+          chatMessages: [userMessageObject, aiMessageObject]
         }));
       }
     },

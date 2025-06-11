@@ -12,7 +12,6 @@ const ChatbotPanel = () => {
   const [inputValue, setInputValue] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [isThinking, setIsThinking] = React.useState(false);
-  const [pendingChatItem, setPendingChatItem] = React.useState(null);
   
   const messagesContainerRef = React.useRef(null);
   const inputRef = React.useRef(null);
@@ -96,76 +95,6 @@ const ChatbotPanel = () => {
   // Handle input change
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
-  };
-  
-  // Handle clear chat history
-  const handleClearChatHistory = () => {
-    if (selectedItemId && window.confirm('Are you sure you want to clear the chat history for this item?')) {
-      window.StruMLApp.Utils.clearChatHistory(selectedItemId);
-      actions.loadChatHistory(selectedItemId);
-    }
-  };
-  
-  // Handle refresh chat (clear current conversation without deleting history)
-  const handleRefreshChat = () => {
-    if (window.confirm('Are you sure you want to refresh the chat? Current conversation will be cleared but not saved.')) {
-      // Clear the current chat messages in the state
-      actions.loadChatHistory(selectedItemId);
-      // Clear any pending chat item
-      setPendingChatItem(null);
-      // Reset processed message IDs to prevent issues with duplicate content
-      setProcessedMessageIds(new Set());
-    }
-  };
-  
-  // Handle save chat
-  const handleSaveChat = () => {
-    try {
-      // Get the context item title - either from the current item or default to "Document"
-      let contextItemTitle = currentItem ? currentItem.title : "Document";
-      let contextItemId = selectedItemId || null;
-      
-      // Find or create the AI Chats parent item
-      const aiChatsItem = window.StruMLApp.Utils.findOrCreateAIChatsItem(state.document, actions.createItem);
-      
-      if (!aiChatsItem) {
-        throw new Error("Could not find or create AI Chats parent item");
-      }
-      
-      // Create a title for the chat item based on the context and first message
-      let chatTitle = "AI Chat";
-      if (chatMessages.length > 0 && chatMessages[0].sender === 'user') {
-        const firstMessage = chatMessages[0].text;
-        chatTitle = `${contextItemTitle} > ${firstMessage.substring(0, 30)}${firstMessage.length > 30 ? '...' : ''}`;
-      } else {
-        chatTitle = `${contextItemTitle} > Chat`;
-      }
-      
-      // Create relation tag to the context item
-      const relationTag = `>>${contextItemTitle}`;
-      
-      // Create a new AI chat item
-      const newItem = {
-        id: window.StruMLApp.Utils.generateId(),
-        title: chatTitle,
-        content: chatMessages.map(msg => `**${msg.sender === 'user' ? 'You' : 'AI Assistant'}**: ${msg.text}`).join('\n\n'),
-        tags: `ai-generated, ${relationTag}`,
-        items: []
-      };
-      
-      // Add the item to the document - as a child of the AI Chats item
-      actions.createItem(aiChatsItem.id, newItem);
-      
-      // Show a message
-      window.StruMLApp.Utils.showAlert(`Chat saved as "${chatTitle}"`, "success");
-      
-      // Store the new item as pending chat item
-      setPendingChatItem(newItem);
-      
-    } catch (error) {
-      console.error('Error saving chat:', error);
-      window.StruMLApp.Utils.showAlert(`Error saving chat: ${error.message}`, "error");
-    }
   };
   
   // Handle send message
@@ -366,28 +295,19 @@ const ChatbotPanel = () => {
     window.StruMLApp.Utils.showAlert(`Added ${jsonData.items.length} items as children of "${currentItem.title}"`, "success");
   };
   
-  // Track which messages have had their content added to prevent duplicate additions
-  const [processedMessageIds, setProcessedMessageIds] = React.useState(new Set());
-  
   // Render JSON preview with draggable badges
   const renderJsonPreview = (message) => {
     if (!message.jsonData) return null;
     
     const jsonData = message.jsonData;
-    const messageId = `${message.timestamp || 0}-${JSON.stringify(message.jsonData)}`;
     
     // If this is a response to a custom request and only contains content,
     // automatically update the current item with the content and don't show the preview
     if (queryType === 'custom request' && jsonData.content && !jsonData.title && !jsonData.items) {
-      // Only add content if this message hasn't been processed yet
-      if (!processedMessageIds.has(messageId)) {
-        // Use setTimeout to ensure this runs after the component has rendered
-        setTimeout(() => {
-          handleAddJsonContent(jsonData);
-          // Mark this message as processed
-          setProcessedMessageIds(prev => new Set([...prev, messageId]));
-        }, 100);
-      }
+      // Use setTimeout to ensure this runs after the component has rendered
+      setTimeout(() => {
+        handleAddJsonContent(jsonData);
+      }, 100);
       
       // Return null to prevent showing the JSON preview
       return null;
@@ -575,51 +495,14 @@ const ChatbotPanel = () => {
         <div className="flex justify-between items-center mb-1">
           <h3 className="font-medium">AI Assistant</h3>
           <div className="flex space-x-1">
-            {chatMessages.length > 0 && (
-              <>
-                <button
-                  onClick={handleRefreshChat}
-                  className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-                  title="Refresh chat (clear current conversation)"
-                >
-                  <i className="bi bi-arrow-clockwise"></i> Refresh
-                </button>
-                <button
-                  onClick={handleSaveChat}
-                  className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
-                  title="Save chat as an item"
-                >
-                  <i className="bi bi-save"></i> Save Chat
-                </button>
-              </>
-            )}
-            {chatMessages.length > 0 && selectedItemId && (
-              <button
-                onClick={handleClearChatHistory}
-                className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
-                title="Clear chat history"
-              >
-                <i className="bi bi-trash"></i> Clear History
-              </button>
-            )}
+            {/* Buttons removed as per requirements */}
           </div>
         </div>
         <p className="text-sm text-gray-600">
           Current item: <span className="font-medium">{currentItem ? currentItem.title : "Document"}</span>
         </p>
         
-        {/* Show pending chat item as a draggable badge if available */}
-        {pendingChatItem && (
-          <div className="mt-2">
-            <p className="text-xs text-gray-500 mb-1">Saved chat:</p>
-            {React.createElement(window.StruMLApp.Components.DraggableItemBadge, {
-              item: pendingChatItem,
-              onClick: (item) => selectItem(item.id),
-              onDragStart: () => {},
-              onDragEnd: () => {}
-            })}
-          </div>
-        )}
+        {/* Pending chat item display removed */}
       </div>
       
       {/* Messages */}

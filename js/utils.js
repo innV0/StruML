@@ -539,58 +539,6 @@ window.StruMLApp.Utils.filterDocumentStructure = function(document) {
   return filteredDocument;
 };
 
-/**
- * Find or create an AI Chats parent item
- * @param {Object} document - The document
- * @param {Function} createItemFn - Function to create an item
- * @returns {Object|null} The AI Chats item or null
- */
-window.StruMLApp.Utils.findOrCreateAIChatsItem = function(document, createItemFn) {
-  if (!document || !document.items) return null;
-  
-  // Try to find the AI Chats item
-  const findAIChatsItem = (items) => {
-    if (!items || !Array.isArray(items)) return null;
-    
-    for (const item of items) {
-      if (item.title === "🤖 AI Chats") {
-        return item;
-      }
-      
-      if (item.items && item.items.length > 0) {
-        const found = findAIChatsItem(item.items);
-        if (found) return found;
-      }
-    }
-    
-    return null;
-  };
-  
-  // Look for the AI Chats item in the document
-  let aiChatsItem = findAIChatsItem(document.items);
-  
-  // If not found and createItemFn is provided, create it
-  if (!aiChatsItem && createItemFn) {
-    const newItem = {
-      id: window.StruMLApp.Utils.generateId(),
-      title: "🤖 AI Chats",
-      content: "This item contains all AI-generated chats.",
-      tags: "system",
-      items: []
-    };
-    
-    // Create the item at the top level (no parent)
-    const newItemId = createItemFn(null, newItem);
-    
-    // Return the newly created item
-    if (newItemId) {
-      aiChatsItem = newItem;
-    }
-  }
-  
-  return aiChatsItem;
-};
-
 // ====================================
 // STORAGE OPERATIONS
 // ====================================
@@ -632,57 +580,6 @@ window.StruMLApp.Utils.loadFromLocalStorage = (key) => {
  * @param {Array} messages - Chat messages
  * @returns {boolean} Success status
  */
-window.StruMLApp.Utils.saveChatHistory = function(itemId, messages) {
-  try {
-    // Create a unique key for each item
-    const key = `struml-chat-history-${itemId}`;
-    
-    // Save the messages to localStorage
-    localStorage.setItem(key, JSON.stringify(messages));
-    return true;
-  } catch (error) {
-    window.StruMLApp.Utils.logError('saveChatHistory', error);
-    return false;
-  }
-};
-
-/**
- * Load chat history from localStorage
- * @param {string} itemId - ID of the item
- * @returns {Array} Chat messages
- */
-window.StruMLApp.Utils.loadChatHistory = function(itemId) {
-  try {
-    // Create a unique key for each item
-    const key = `struml-chat-history-${itemId}`;
-    
-    // Load the messages from localStorage
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : [];
-  } catch (error) {
-    window.StruMLApp.Utils.logError('loadChatHistory', error);
-    return [];
-  }
-};
-
-/**
- * Clear chat history from localStorage
- * @param {string} itemId - ID of the item
- * @returns {boolean} Success status
- */
-window.StruMLApp.Utils.clearChatHistory = function(itemId) {
-  try {
-    // Create a unique key for each item
-    const key = `struml-chat-history-${itemId}`;
-    
-    // Remove the messages from localStorage
-    localStorage.removeItem(key);
-    return true;
-  } catch (error) {
-    window.StruMLApp.Utils.logError('clearChatHistory', error);
-    return false;
-  }
-};
 
 // ====================================
 // FILE OPERATIONS
