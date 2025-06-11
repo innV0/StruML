@@ -37,3 +37,11 @@ Information about the complete model
 {{#context_block}}
 {{{context}}}
 {{/context_block}}
+
+### SAMPLE_ITEM
+
+This is an example of the expected JSON output structure. Replicate this structure and detail level if applicable to the request.
+
+{{#sample_item_block}}
+{{{sampleItem}}}
+{{/sample_item_block}}

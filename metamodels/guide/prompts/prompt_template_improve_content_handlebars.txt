@@ -1,5 +1,13 @@
 Your task is to improve the content of the item titled '{{itemTitle}}'.
 
+### SAMPLE_ITEM
+
+This is an example of the expected JSON output structure. Replicate this structure and detail level if applicable to the request.
+
+{{#sample_item_block}}
+{{{sampleItem}}}
+{{/sample_item_block}}
+
 Based on ALL the context (description, document structure, and the sample item example), provide an improved version of the content for the item '{{itemTitle}}'.
 - Your response MUST be ONLY a valid JSON object with a single field "content" containing the improved content.
 - The improved content should be more detailed, better structured, and higher quality than the original, while maintaining the same general meaning and purpose.
@@ -9,3 +17,4 @@ Example response format:
 {
   "content": "This is the improved content for the item. It is more detailed, better structured, and higher quality than the original."
 }
+```
